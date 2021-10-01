@@ -18,15 +18,20 @@ namespace ConsoleAppPL
             }
             data.ClearAt(box);
             data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
-            string choice = string.Empty;
+            if(content[0] == null){
+                Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
+                data.TextColor("There are no products in this listing!", ConsoleColor.DarkGray);
+                return;
+            }
             int max_line = content.Length;
             for(int i = 0; i < max_line; i++){
                 data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
             }
         }
         public List<Page> InvoicePages(List<Invoice> invoices){
-            List<Page> pages = null;
+            List<Page> pages = new List<Page>();
             if(invoices == null){
+                pages.Add(new Page());
                 return pages;
             }
             pages = new List<Page>();
@@ -66,10 +71,11 @@ namespace ConsoleAppPL
             }
         }
         public List<Page> ProductPages(List<Product> products){
-            if(products == null){
-                return null;
-            }
             List<Page> pages = new List<Page>();
+            if(products == null){
+                pages.Add(new Page());
+                return pages;
+            }
             Page page = new Page();
             int count_product = products.Count;
             int page_number = 1;

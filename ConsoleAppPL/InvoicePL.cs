@@ -14,7 +14,7 @@ namespace ConsoleAppPL
             string[] tutorial = new string[]{"A: Search By ID", "B: Search By Name", "C: Search By Category", "ALL: Show All", "ESC: Cancel", "End: Create Invoice"};
             ProductBL bL = new ProductBL();
             List<Page> pages = ProductPages(bL.SearchByName(0, new Product(){ProductName = ""}));
-            List<Page> pages1 = ProductPages(bL.SearchByName(1, new Product(){ProductName = "tra"}));
+            List<Page> pages1 = ProductPages(bL.SearchByName(1, new Product(){ProductName = "hfg 6 6"}));
             string choice = string.Empty;
             int current_page_left = 1; int max_page_left = pages.Count; // box left
             int current_page_right = 1; int max_page_right = pages1.Count; // box right
@@ -26,6 +26,7 @@ namespace ConsoleAppPL
             ShowNumberPage(current_page_right, max_page_right, true);
             BoxTutorial(tutorial);
             do{
+                CurrentBox(isControlRight);
                 choice = data.GetChoice("Your Choice", keyword);
                 switch(choice){
                     case "A": case "a":// search by id 
@@ -80,6 +81,10 @@ namespace ConsoleAppPL
                     case "Escape":
                         break;
                     default:
+                        if(choice.ToLower() == "all"){
+                            //code
+                            break;
+                        }
                         int key, value;
                         int.TryParse(choice, out key);
                         if(key_index.TryGetValue(key, out value)){
@@ -97,6 +102,17 @@ namespace ConsoleAppPL
                         break;
                 }
             }while(choice != "Escape");
+        }
+        public void CurrentBox(bool isRight){
+            if(isRight){
+                Console.SetCursorPosition(Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+            }else{
+                Console.SetCursorPosition(Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+            }
         }
     }
 }
