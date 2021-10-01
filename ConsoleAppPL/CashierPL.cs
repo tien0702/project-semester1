@@ -10,7 +10,7 @@ namespace ConsoleAppPL
     class CashierPL:Menu{
         private InputAndOutputData data = new InputAndOutputData();
         public void MenuCashier(Cashier cashier){
-            string[] keyword = new string[]{"Escape", "LeftArrow", "RightArrow"};
+            string[] keyword = new string[]{"Escape", "LeftArrow", "RightArrow", "Escape"};
             string[] menu = new string[]{" A: Order", " ESC: Log Out"};
             InvoiceBL invoiceBL = new InvoiceBL();
             List<Invoice> invoices = invoiceBL.GetByStatus(2);
@@ -28,6 +28,11 @@ namespace ConsoleAppPL
                     case "A": case "a":
                         InvoicePL pl = new InvoicePL();
                         pl.MenuInvoice(cashier);
+                        ViewBox(pages[current_page - 1].View, "List Invoice", false);
+                        ViewBox(menu, "Menu", true);
+                        ShowNumberPage(current_page, max_page, false);
+                        data.ClearAt(Box.BOX_TUTORIAL);
+                        data.ClearAt(Box.PAGE_RIGHT);
                         break;
                     case "LeftArrow":
                         if(current_page > 1){

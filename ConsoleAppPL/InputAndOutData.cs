@@ -7,35 +7,6 @@ namespace ConsoleAppPL
 {
     public class InputAndOutputData
     {
-        public string ReadChoices(){
-            var result = string.Empty;
-            // ClearAt(0, 70, 27, 30);
-            Console.SetCursorPosition(0 , 27);
-            TextColor("\nYour choice: ", ConsoleColor.Green);
-            ConsoleKey key;
-            do{
-                var keyInfo = Console.ReadKey(intercept: true);
-                key = keyInfo.Key;
-                if (key == ConsoleKey.Backspace && result.Length > 0)
-                {
-                    Console.Write("\b \b");
-                    result = result[0..^1];
-                }
-                else if (key == ConsoleKey.Escape || key == ConsoleKey.LeftArrow || key == ConsoleKey.RightArrow)
-                {
-                    return key.ToString();
-                }
-                else if (!char.IsControl(keyInfo.KeyChar))
-                {
-                    Console.Write(keyInfo.KeyChar);
-                    result += keyInfo.KeyChar;
-                }
-            }while (key != ConsoleKey.Enter);
-            if(result == string.Empty){
-                result = ConsoleKey.Enter.ToString();
-            }
-            return result;
-        }
         public string GetChoice(string msg, string[] keyword){
             var result = string.Empty;
             ClearAt(Box.BOX_CHOICE);

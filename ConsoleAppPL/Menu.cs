@@ -117,8 +117,8 @@ namespace ConsoleAppPL
             data.ClearAt(box);
             int x = box.Left-1;
             int y = box.Top-1;
-            string back = (isRight == false)?("←"):("↓");
-            string next = (isRight == false)?("→"):("↑");
+            string back = (isRight == false)?("←"):("↑");
+            string next = (isRight == false)?("→"):("↓");
             if(isRight == true)
             {
                 data.WriteAt("╬═════════════════════════════════════════════════════════════════════█", x, y++);
