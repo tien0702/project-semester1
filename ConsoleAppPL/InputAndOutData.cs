@@ -45,13 +45,18 @@ namespace ConsoleAppPL
             do{
                 var keyInfo = Console.ReadKey(intercept: true);
                 key = keyInfo.Key;
+                if(key == ConsoleKey.Enter){
+                    break;
+                }
                 if (key == ConsoleKey.Backspace && result.Length > 0)
                 {
                     Console.Write("\b \b");
                     result = result[0..^1];
                 }
-                else if(Console.CursorLeft == Box.BOX_CHOICE.Right - 1){
+                else if(result.Length > 50){
+                    ClearAt(new Coordinates(){Left = 1, Right = 70, Top = 31, Bott = 31});
                     WriteAt("Limit!", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                    continue;
                 }
                 else if (keyword.Contains(key.ToString()))
                 {

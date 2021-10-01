@@ -9,96 +9,20 @@ namespace ConsoleAppPL
 {
     public class Menu{
         private InputAndOutputData data = new InputAndOutputData();
-
-        public void ViewLeft(string[] content, string name){
-            data.ClearAt(Box.BOX_LEFT);
-            data.WriteAt(string.Format("≡ " + name), Box.BOX_LEFT.Left, Box.BOX_LEFT.Top);
+        public void ViewBox(string[] content, string name_box, bool isRight){
+            Coordinates box;
+            if(isRight){
+                box = Box.BOX_RIGHT;
+            }else{
+                box = Box.BOX_LEFT;
+            }
+            data.ClearAt(box);
+            data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
             string choice = string.Empty;
             int max_line = content.Length;
             for(int i = 0; i < max_line; i++){
-                data.WriteAt(string.Format(" " + content[i]), Box.BOX_LEFT.Left, Box.BOX_LEFT.Top+i+1);
+                data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
             }
-        }
-        public void ViewRight(string[] content, string name){
-            data.ClearAt(Box.BOX_RIGHT);
-            data.WriteAt(string.Format("≡ " + name), Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Top);
-            string choice = string.Empty;
-            int max_line = content.Length;
-            for(int i = 0; i < max_line; i++){
-                data.WriteAt(string.Format(" " + content[i]), Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Top+i+1);
-            }
-        }
-        public void ViewTutorial(string[] options){
-            data.ClearAt(Box.BOX_TUTORIAL);
-            int length = options.Length;
-            int pos_x = Box.BOX_TUTORIAL.Left;
-            int pos_y = Box.BOX_TUTORIAL.Top;
-            for(int i = 0; i <length; i++){
-                if(pos_y == Box.BOX_TUTORIAL.Bott+1){
-                    pos_x = Box.BOX_TUTORIAL.Left+30;
-                    pos_y = Box.BOX_TUTORIAL.Top;
-                }
-                data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
-            }
-        }
-        public string ViewRight(Page page, string name){
-            data.ClearAt(Box.BOX_RIGHT);
-            data.WriteAt(string.Format("≡ " + name), Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Top);
-            string choice = string.Empty;
-            int max_line = page.View.Length;
-            for(int i = 0; i < max_line; i++){
-                data.WriteAt(string.Format(" " + page.View[i]), Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Top+i+1);
-            }
-            string result;
-            string[] keyword = new string[]{"ESCAPE", "END", "LEFTARROW", "RIGHTARROW", "UPRROW", "DOWNARROW", "ENTER"};
-            choice = data.GetChoice("Your Choice", keyword);
-            if(keyword.Contains(choice.ToUpper())){
-                result = choice;
-            }else{
-                int value, key;
-                while(true){
-                    int.TryParse(choice, out key);
-                    if(page.KeyIndex.TryGetValue(key, out value)){
-                        result = value.ToString();
-                    }else{
-                        Console.SetCursorPosition(Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                        data.TextColor(" ▲! Invalid! Please press any key to continue...", ConsoleColor.Red);
-                        Console.ReadKey();
-                        choice = data.GetChoice( "Your Choice", keyword);
-                    }
-                }
-            }
-            return result;
-        }
-
-        public string ViewLeft(Page page, string name){
-            data.ClearAt(Box.BOX_LEFT);
-            data.WriteAt(string.Format("≡ " + name), 1, Box.BOX_LEFT.Top);
-            string choice = string.Empty;
-            int max_line = page.View.Length;
-            for(int i = 0; i < max_line; i++){
-                data.WriteAt(string.Format(" " + page.View[i]), Box.BOX_LEFT.Left, Box.BOX_LEFT.Top+i+1);
-            }
-            string result;
-            string[] keyword = new string[]{"ESCAPE", "END", "LEFTARROW", "RIGHTARROW", "UPRROW", "DOWNARROW", "ENTER"};
-            choice = data.GetChoice("Your Choice", keyword);
-            if(keyword.Contains(choice.ToUpper())){
-                result = choice;
-            }else{
-                int value, key;
-                while(true){
-                    int.TryParse(choice, out key);
-                    if(page.KeyIndex.TryGetValue(key, out value)){
-                        result = value.ToString();
-                    }else{
-                        Console.SetCursorPosition(Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                        data.TextColor(" ▲! Invalid! Please press any key to continue...", ConsoleColor.Red);
-                        Console.ReadKey();
-                        choice = data.GetChoice( "Your Choice", keyword);
-                    }
-                }
-            }
-            return result;
         }
         public List<Page> InvoicePages(List<Invoice> invoices){
             List<Page> pages = null;
@@ -127,6 +51,19 @@ namespace ConsoleAppPL
                 }
             }
             return pages;
+        }
+        public void BoxTutorial(string[] options){
+            data.ClearAt(Box.BOX_TUTORIAL);
+            int length = options.Length;
+            int pos_x = Box.BOX_TUTORIAL.Left;
+            int pos_y = Box.BOX_TUTORIAL.Top;
+            for(int i = 0; i <length; i++){
+                if(pos_y == Box.BOX_TUTORIAL.Bott+1){
+                    pos_x = Box.BOX_TUTORIAL.Left+30;
+                    pos_y = Box.BOX_TUTORIAL.Top;
+                }
+                data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
+            }
         }
         public List<Page> ProductPages(List<Product> products){
             if(products == null){
@@ -169,22 +106,30 @@ namespace ConsoleAppPL
             return pages;
         }
         
-        public void ShowNumberPage(int x, int y, int current_page, int max_page, bool inside_page)
+        public void ShowNumberPage(int current_page, int max_page, bool isRight)
         {
-            data.ClearAt(Box.PAGE_LEFT);
-            string back = (inside_page == true)?("←"):("↓");
-            string next = (inside_page == true)?("→"):("↑");
-            if(inside_page == true)
-            {
-                data.WriteAt("█═══════════════════════════════════════════════════════════════════════╬", x, y++);
-                data.WriteAt(string.Format("█                                  {0, -4}                                 ║", string.Format(current_page + "/" + max_page)), x, y++);
-                data.WriteAt(string.Format("█═══════════════════════════════════════════════════════════════════════╬"), x, y);
+            Coordinates box;
+            if(isRight){
+                box = Box.PAGE_RIGHT;
+            }else{
+                box = Box.PAGE_LEFT;
             }
-            else
+            data.ClearAt(box);
+            int x = box.Left-1;
+            int y = box.Top-1;
+            string back = (isRight == false)?("←"):("↓");
+            string next = (isRight == false)?("→"):("↑");
+            if(isRight == true)
             {
                 data.WriteAt("╬═════════════════════════════════════════════════════════════════════█", x, y++);
                 data.WriteAt(string.Format("║                                  {0, -4}                               █", string.Format(current_page + "/" + max_page)), x, y++);
                 data.WriteAt(string.Format("╬═════════════════════════════════════════════════════════════════════█"), x, y);
+            }
+            else
+            {
+                data.WriteAt("█═══════════════════════════════════════════════════════════════════════╬", x, y++);
+                data.WriteAt(string.Format("█                                  {0, -4}                                 ║", string.Format(current_page + "/" + max_page)), x, y++);
+                data.WriteAt(string.Format("█═══════════════════════════════════════════════════════════════════════╬"), x, y);
             }
             if(max_page == 1){
                 return;
@@ -205,6 +150,7 @@ namespace ConsoleAppPL
         }
         public void Form(string name_form)
         {
+            Console.Clear();
             Console.SetCursorPosition(0, 0);
             Console.BackgroundColor = ConsoleColor.DarkCyan;
             Console.WriteLine("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█");
