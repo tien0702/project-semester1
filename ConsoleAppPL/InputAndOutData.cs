@@ -7,9 +7,9 @@ namespace ConsoleAppPL
 {
     public class InputAndOutputData
     {
-        public string GetChoice(string msg, string[] keyword){
+        public string GetChoice(string msg, string[] keyword){ // hiển thị yêu cầu lựa chọn, trả về key vừa nhập nếu nó thuộc một trong các keyword truyền vào
             var result = string.Empty;
-            ClearAt(Box.BOX_CHOICE);
+            ClearAt(Box.BOX_CHOICE);//xoá màn hình tại vị trí của box choice
             Console.SetCursorPosition(Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Top);
             TextColor(string.Format(" >| {0}: ", msg), ConsoleColor.Green);
             ConsoleKey key;
@@ -39,12 +39,12 @@ namespace ConsoleAppPL
                     Console.Write(keyInfo.KeyChar);
                 }
             }while (key != ConsoleKey.Enter);
-            if(result == string.Empty){
+            if(result == string.Empty){// nếu chuỗi trống thì trả về "Enter"
                 result = ConsoleKey.Enter.ToString();
             }
             return result;
         }
-        public void WriteAt(string s, int x, int y)
+        public void WriteAt(string s, int x, int y) // in nội dung truyền vào tại vị trí chỉ định
         {
             try
             {
@@ -55,8 +55,7 @@ namespace ConsoleAppPL
                 Console.WriteLine(e.Message);
             }
         }
-        
-        public void ClearAt(Coordinates coordinates)
+        public void ClearAt(Coordinates coordinates) // in ra khoảng trắng tại vị trí chỉ định (xoá màn hình tại vị trí chỉ định)
         {
             int row = coordinates.Bott - coordinates.Top;
             int column = coordinates.Right - coordinates.Left;

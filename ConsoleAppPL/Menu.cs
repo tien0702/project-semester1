@@ -9,7 +9,7 @@ namespace ConsoleAppPL
 {
     public class Menu{
         private InputAndOutputData data = new InputAndOutputData();
-        public void ViewBox(string[] content, string name_box, bool isRight){
+        public void ViewBox(string[] content, string name_box, bool isRight){ // hiển thị nội dung truyền vào ở phía bên phải nếu isRight = true và ngược lại
             Coordinates box;
             if(isRight){
                 box = Box.BOX_RIGHT;
@@ -28,7 +28,7 @@ namespace ConsoleAppPL
                 data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
             }
         }
-        public List<Page> InvoicePages(List<Invoice> invoices){
+        public List<Page> InvoicePages(List<Invoice> invoices){// cắt list Invoice thành list Page
             List<Page> pages = new List<Page>();
             if(invoices == null){
                 pages.Add(new Page());
@@ -57,7 +57,7 @@ namespace ConsoleAppPL
             }
             return pages;
         }
-        public void BoxTutorial(string[] options){
+        public void BoxTutorial(string[] options){// box bên phải phía dưới, hiển thị hướng dẫn các nút điều hướng
             data.ClearAt(Box.BOX_TUTORIAL);
             int length = options.Length;
             int pos_x = Box.BOX_TUTORIAL.Left;
@@ -70,9 +70,9 @@ namespace ConsoleAppPL
                 data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
             }
         }
-        public List<Page> ProductPages(List<Product> products){
+        public List<Page> ProductPages(List<Product> products){ //cắt list Product thành list Page
             List<Page> pages = new List<Page>();
-            if(products == null){
+            if(products == null || products.Count == 0){
                 pages.Add(new Page());
                 return pages;
             }
@@ -112,7 +112,7 @@ namespace ConsoleAppPL
             return pages;
         }
         
-        public void ShowNumberPage(int current_page, int max_page, bool isRight)
+        public void ShowNumberPage(int current_page, int max_page, bool isRight) // hiển thị (số trang hiện tại)/(số trang tối đa) của box phải nếu isRight = true
         {
             Coordinates box;
             if(isRight){

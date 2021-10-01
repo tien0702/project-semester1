@@ -12,16 +12,17 @@ namespace ConsoleAppPL
         public void MenuInvoice(Cashier cashier){
             string[] keyword = new string[]{"End", "LeftArrow", "RightArrow", "UpArrow", "DownArrow", "Escape"};
             string[] tutorial = new string[]{"A: Search By ID", "B: Search By Name", "C: Search By Category", "ALL: Show All", "ESC: Cancel", "End: Create Invoice"};
+            Invoice invoice = new Invoice();
             ProductBL bL = new ProductBL();
             List<Page> pages = ProductPages(bL.SearchByName(0, new Product(){ProductName = ""}));
-            List<Page> pages1 = ProductPages(bL.SearchByName(1, new Product(){ProductName = "hfg 6 6"}));
+            List<Page> order = ProductPages(invoice.ListProduct);
             string choice = string.Empty;
             int current_page_left = 1; int max_page_left = pages.Count; // box left
-            int current_page_right = 1; int max_page_right = pages1.Count; // box right
+            int current_page_right = 1; int max_page_right = order.Count; // box right
             bool isControlRight = true;
             Dictionary<int, int> key_index = pages[0].KeyIndex;
             ViewBox(pages[0].View, "List Product", false);
-            ViewBox(pages1[0].View, "List Product", true);
+            ViewBox(order[0].View, "Order", true);
             ShowNumberPage(current_page_left, max_page_left, false);
             ShowNumberPage(current_page_right, max_page_right, true);
             BoxTutorial(tutorial);
@@ -58,14 +59,14 @@ namespace ConsoleAppPL
                     case "UpArrow":
                         if(current_page_right > 1){
                             current_page_right--;
-                            ViewBox(pages1[current_page_right - 1].View, "List Invoice", true);
+                            ViewBox(order[current_page_right - 1].View, "List Invoice", true);
                             ShowNumberPage(current_page_right, max_page_right, true);
                         }
                         break;
                     case "DownArrow":
                         if(current_page_right < max_page_right){
                             current_page_right++;
-                            ViewBox(pages1[current_page_right - 1].View, "List Invoice", true);
+                            ViewBox(order[current_page_right - 1].View, "List Invoice", true);
                             ShowNumberPage(current_page_right, max_page_right, true);
                         }
                         break;
@@ -75,7 +76,7 @@ namespace ConsoleAppPL
                             key_index = pages[current_page_left-1].KeyIndex;
                         }else{
                             isControlRight = true;
-                            key_index = pages1[current_page_right-1].KeyIndex;
+                            key_index = order[current_page_right-1].KeyIndex;
                         }
                         break;
                     case "Escape":
