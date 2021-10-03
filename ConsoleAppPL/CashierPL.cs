@@ -1,8 +1,6 @@
 using System;
-using System.Text.RegularExpressions;
 using Persistance;
 using BL;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace ConsoleAppPL
@@ -10,7 +8,7 @@ namespace ConsoleAppPL
     class CashierPL:Menu{
         private InputAndOutputData data = new InputAndOutputData();
         public void MenuCashier(Cashier cashier){
-            string[] keyword = new string[]{"Escape", "LeftArrow", "RightArrow", "Escape"};
+            string[] keyword = new string[]{"Escape", "LeftArrow", "RightArrow"};
             string[] menu = new string[]{" A: Order", " ESC: Log Out"};
             InvoiceBL invoiceBL = new InvoiceBL();
             List<Invoice> invoices = invoiceBL.GetByStatus(2);

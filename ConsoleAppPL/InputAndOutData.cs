@@ -25,7 +25,7 @@ namespace ConsoleAppPL
                     result = result[0..^1];
                 }
                 else if(result.Length > 50){
-                    ClearAt(new Coordinates(){Left = 1, Right = 70, Top = 31, Bott = 31});
+                    // ClearAt(new Coordinates(){Left = 1, Right = 70, Top = 31, Bott = 31});
                     WriteAt("Limit!", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
                     continue;
                 }
@@ -46,10 +46,13 @@ namespace ConsoleAppPL
         }
         public void WriteAt(string s, int x, int y) // in nội dung truyền vào tại vị trí chỉ định
         {
+            int cur_x = Console.CursorLeft;
+            int cur_y = Console.CursorTop;
             try
             {
                 Console.SetCursorPosition(x, y);
                 Console.Write(s);
+                Console.SetCursorPosition(cur_x, cur_y);
             }catch(Exception e)
             {
                 Console.WriteLine(e.Message);

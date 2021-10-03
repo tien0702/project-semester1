@@ -1,5 +1,4 @@
 using System;
-using System.Text.RegularExpressions;
 using Persistance;
 using BL;
 using System.Linq;
@@ -26,6 +25,78 @@ namespace ConsoleAppPL
             int max_line = content.Length;
             for(int i = 0; i < max_line; i++){
                 data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
+            }
+        }
+        public void ClearBox(bool boxLeft, bool boxRight, bool pageLeft, bool pageRight, bool boxTutorial){
+            if(boxLeft){
+                data.ClearAt(Box.BOX_LEFT);
+            }
+            if(boxRight){
+                data.ClearAt(Box.BOX_RIGHT);
+            }
+            if(pageLeft){
+                data.ClearAt(Box.PAGE_LEFT);
+            }
+            if(pageRight){
+                data.ClearAt(Box.PAGE_RIGHT);
+            }
+            if(boxTutorial){
+                data.ClearAt(Box.BOX_TUTORIAL);
+            }
+        }
+        public void InvalidSelection(string msg){
+            Console.ForegroundColor = ConsoleColor.Red;
+            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+        public string ViewBox(string[] content, int number_choice, string[] keywords, string name_box, bool isRight){
+            string choice = string.Empty;
+            Coordinates box;
+            if(isRight){
+                box = Box.BOX_RIGHT;
+            }else{
+                box = Box.BOX_LEFT;
+            }
+            data.ClearAt(box);
+            data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
+            if(content == null || content[0] == null){
+                Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
+                data.TextColor("There are no products in this listing!", ConsoleColor.DarkGray);
+                return "0";
+            }
+            int max_line = content.Length;
+            for(int i = 0; i < max_line; i++){
+                data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
+            }
+            int temp;
+            do{
+                choice = data.GetChoice("Your Choice", new string[]{"Escape"});
+                if(keywords.Contains(choice)){
+                    break;
+                }else{
+                    int.TryParse(choice, out temp);
+                    if(temp < 1 || temp > number_choice){
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        data.WriteAt("You choice invalid! Press any key to continue....", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                        Console.ResetColor();
+                        Console.ReadKey();
+                    }else{
+                        return choice;
+                    }
+                }
+            }while(choice != "Escape");
+            return choice;
+        }
+        public void CurrentBox(bool isRight){
+            if(isRight){
+                Console.SetCursorPosition(Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+            }else{
+                Console.SetCursorPosition(Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
             }
         }
         public List<Page> InvoicePages(List<Invoice> invoices){// cắt list Invoice thành list Page
@@ -59,6 +130,7 @@ namespace ConsoleAppPL
         }
         public void BoxTutorial(string[] options){// box bên phải phía dưới, hiển thị hướng dẫn các nút điều hướng
             data.ClearAt(Box.BOX_TUTORIAL);
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
             int length = options.Length;
             int pos_x = Box.BOX_TUTORIAL.Left;
             int pos_y = Box.BOX_TUTORIAL.Top;
@@ -69,6 +141,7 @@ namespace ConsoleAppPL
                 }
                 data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
             }
+            Console.ResetColor();
         }
         public List<Page> ProductPages(List<Product> products){ //cắt list Product thành list Page
             List<Page> pages = new List<Page>();
