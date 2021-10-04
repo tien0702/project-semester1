@@ -8,7 +8,8 @@ namespace ConsoleAppPL
 {
     public class Menu{
         private InputAndOutputData data = new InputAndOutputData();
-        public void ViewBox(string[] content, string name_box, bool isRight){ // hiển thị nội dung truyền vào ở phía bên phải nếu isRight = true và ngược lại
+        /// <summary> <c></c> Hiển thị nội dung truyền vào cùng tên của Box, tham số isRight xác định vị trí hiện.</summary>
+        public void ViewBox(string[] content, string name_box, bool isRight){
             Coordinates box;
             if(isRight){
                 box = Box.BOX_RIGHT;
@@ -27,29 +28,8 @@ namespace ConsoleAppPL
                 data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
             }
         }
-        public void ClearBox(bool boxLeft, bool boxRight, bool pageLeft, bool pageRight, bool boxTutorial){
-            if(boxLeft){
-                data.ClearAt(Box.BOX_LEFT);
-            }
-            if(boxRight){
-                data.ClearAt(Box.BOX_RIGHT);
-            }
-            if(pageLeft){
-                data.ClearAt(Box.PAGE_LEFT);
-            }
-            if(pageRight){
-                data.ClearAt(Box.PAGE_RIGHT);
-            }
-            if(boxTutorial){
-                data.ClearAt(Box.BOX_TUTORIAL);
-            }
-        }
-        public void InvalidSelection(string msg){
-            Console.ForegroundColor = ConsoleColor.Red;
-            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-            Console.ResetColor();
-            Console.ReadKey();
-        }
+
+        /// <summary> <c></c> Hiển thị nội dung truyền vào cùng tên của Box, tham số isRight xác định vị trí hiện. Return lựa chọn.</summary>
         public string ViewBox(string[] content, int number_choice, string[] keywords, string name_box, bool isRight){
             string choice = string.Empty;
             Coordinates box;
@@ -77,16 +57,38 @@ namespace ConsoleAppPL
                 }else{
                     int.TryParse(choice, out temp);
                     if(temp < 1 || temp > number_choice){
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        data.WriteAt("You choice invalid! Press any key to continue....", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                        Console.ResetColor();
-                        Console.ReadKey();
+                        InvalidSelection("You choice invalid!");
                     }else{
                         return choice;
                     }
                 }
             }while(choice != "Escape");
             return choice;
+        }
+        /// <summary> <c></c> .</summary>
+        public void ClearBox(bool boxLeft, bool boxRight, bool pageLeft, bool pageRight, bool boxTutorial){
+            if(boxLeft){
+                data.ClearAt(Box.BOX_LEFT);
+            }
+            if(boxRight){
+                data.ClearAt(Box.BOX_RIGHT);
+            }
+            if(pageLeft){
+                data.ClearAt(Box.PAGE_LEFT);
+            }
+            if(pageRight){
+                data.ClearAt(Box.PAGE_RIGHT);
+            }
+            if(boxTutorial){
+                data.ClearAt(Box.BOX_TUTORIAL);
+            }
+        }
+        /// <summary> <c></c> Hiển thị thông báo lỗi, tại Box Choice.</summary>
+        public void InvalidSelection(string msg){
+            Console.ForegroundColor = ConsoleColor.Red;
+            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+            Console.ResetColor();
+            Console.ReadKey();
         }
         public void CurrentBox(bool isRight){
             if(isRight){
@@ -128,7 +130,8 @@ namespace ConsoleAppPL
             }
             return pages;
         }
-        public void BoxTutorial(string[] options){// box bên phải phía dưới, hiển thị hướng dẫn các nút điều hướng
+
+        public void BoxTutorial(string[] options){// Hiển thị hướng dẫn các nút điều hướng
             data.ClearAt(Box.BOX_TUTORIAL);
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             int length = options.Length;

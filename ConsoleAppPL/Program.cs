@@ -14,7 +14,7 @@ namespace ConsoleAppPL
         {
             Console.InputEncoding = System.Text.Encoding.Unicode;
             Console.OutputEncoding = System.Text.Encoding.Unicode;
-            Cashier cashier = new Cashier(){UserName = "Tientv", Password = "TienPF13", Role = 2};
+            Cashier cashier = new Cashier(){UserName = "Tientv", Password = "TienPF13", Role = 2, CashierId = 2};
             CashierPL cashierPL = new CashierPL();
             do{
                 // cashier = Login();

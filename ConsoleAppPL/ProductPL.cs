@@ -14,12 +14,19 @@ namespace ConsoleAppPL
     class ProductPL: Menu{
         private InputAndOutputData data = new InputAndOutputData();
         private ProductBL bl = new ProductBL();
+        public void DefaultProduct(Product product){
+            product.Size = product.Size.ToCharArray()[0].ToString();
+            product.ProductType = product.ProductType.ToCharArray()[0].ToString();
+            product.Sugar = product.Sugar.ToCharArray()[0].ToString();
+            product.Ice = product.Ice.ToCharArray()[0].ToString();
+        }
         public Product MenuProduct(Product productCus){
             Product product = bl.SearchByID((int)productCus.ProductId);
             if(product == null || product.ProductId == null){
                 ViewBox(new string[1], "Menu Product", false);
                 return null;
             }
+            DefaultProduct(productCus);
             int convert;
             int quantity = product.Quantity; productCus.Quantity = 1;
             string types = product.ProductType;
@@ -102,7 +109,15 @@ namespace ConsoleAppPL
                         break;
                 }
             }while(choice != "Escape");
-            return product;
+            return productCus;
+        }
+        public List<Page> SearchByName(){
+            List<Page> pages = null;
+            string search = data.GetChoice("Enter Product Name", new string[]{"Escape"});
+            if(search != "Escape"){
+                pages = ProductPages(bl.SearchByName(1, new Product(){ProductName = search}));
+            }
+            return pages;
         }
         public void CustomizeQuantity(Product product){
             string input = string.Empty;
@@ -153,12 +168,9 @@ namespace ConsoleAppPL
                                 product.ListTopping.Remove(check);
                             }
                             else if(remove != "Enter" && remove != "Escape"){
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                data.WriteAt("You choice invalid! Press any key to continue....", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                                Console.ResetColor();
-                                Console.ReadKey();
+                                InvalidSelection("You choice invalid!");
                             }
-                        }while(remove == "Enter" && remove == "Escape");
+                        }while(remove != "Enter" && remove != "Escape");
                     }
                     ProductDetails(product);
                 }

@@ -1,6 +1,7 @@
 using System;
 using Persistance;
 using BL;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace ConsoleAppPL
@@ -8,18 +9,19 @@ namespace ConsoleAppPL
     public class InvoicePL : Menu
     {
         private InputAndOutputData data = new InputAndOutputData();
+        private InvoiceBL bl = new InvoiceBL();
         public void MenuInvoice(Cashier cashier){
             string[] keyword = new string[]{"End", "LeftArrow", "RightArrow", "UpArrow", "DownArrow", "Escape"};
             string[] tutorial = new string[]{"A: Search By ID", "B: Search By Name", "C: Search By Category", "ALL: Show All", "ESC: Cancel", "End: Create Invoice"};
-            Invoice invoice = new Invoice();
+            Invoice invoice = new Invoice(){InvoiceCashier = cashier};
+            Product product = new Product();
             ProductBL bL = new ProductBL();
             List<Page> pages = new List<Page>();
-            List<Page> order = ProductPages(bL.SearchByName(1, new Product(){ProductName = "tra"}));
+            List<Page> order = ProductPages(invoice.ListProduct);
             List<Page> current_pages = ProductPages(bL.SearchByName(0, new Product(){ProductName = ""}));
-            // ProductPages(invoice.ListProduct);
-            int current_page_left = 0;
+            // 
+            int current_page_left = 0;int max_page_left = 0;
             bool isControlRight = false;
-            int max_page_left = 0;
             int current_page_right = 1; int max_page_right = order.Count; // box right
             ProductPL pl = new ProductPL();
             Dictionary<int, int> key_index = null;
@@ -27,6 +29,8 @@ namespace ConsoleAppPL
             do{
                 switch(choice){
                     case "Update":
+                        order = ProductPages(invoice.ListProduct);
+                        current_page_right = 1;  max_page_right = order.Count; // box right
                         pages = current_pages;
                         current_page_left = 1;
                         max_page_left = pages.Count;
@@ -52,17 +56,20 @@ namespace ConsoleAppPL
                         
                         break;
                     case "B": case "b":// search by name
-                        List<Page> p = SearchByName();
+                        List<Page> p = pl.SearchByName();
                         if(p != null){
                             current_pages = p;
                             choice = "Update";
+                        }else{
+                            choice = "View";
                         }
                         break;
                     case "C": case "c":// search by category
                     Console.WriteLine("Search By Category"); Console.ReadKey();
                         break;
                     case "End": // -> create invoice
-                    Console.WriteLine("Create Invoice"); Console.ReadKey();
+                        CreateInvoice(invoice);
+                        choice = "View";
                         break;
                     case "LeftArrow":
                         if(current_page_left > 1){
@@ -107,25 +114,44 @@ namespace ConsoleAppPL
                             if(isControlRight){
                                 // next right
                             }else{
-                                Product product1 = bL.SearchByID(value);
-                                pl.MenuProduct(product1);
+                                product = pl.MenuProduct(bL.SearchByID(value));
+                                if(product.Quantity > 0){
+                                    invoice.ListProduct.Add(product);
+                                }
+                                choice = "Update";
                             }
                         }else{
                             InvalidSelection("You choice invalid!");
+                            choice = "View";
                         }
-                        choice = "View";
                         break;
                 }
             }while(choice != "Escape");
         }
-        public List<Page> SearchByName(){
-            List<Page> pages = null;
-            ProductBL bL = new ProductBL();
-            string search = data.GetChoice("Enter Product Name", new string[]{"Escape"});
-            if(search != "Escape"){
-                pages = ProductPages(bL.SearchByName(1, new Product(){ProductName = search}));
-            }
-            return pages;
+        public void CreateInvoice(Invoice invoice){
+            string[] menu = new string[]{"1. Payment Confirmation", "2. Waiting For Progressing", "3. Add Notes", "4. Back"};
+            string choice = string.Empty;
+            do{
+                choice = ViewBox(menu, menu.Length, new string[]{""}, "Menu", false);
+                switch(choice){
+                    case "1":
+                        if(bl.CreateInvoice(invoice)){
+                            Console.WriteLine("Complete!");
+                        }else{
+                            Console.WriteLine("Not complete");
+                        }
+                        break;
+                    case "2":
+                        break;
+                    case "3":
+                        break;
+                    case "4":
+                        break;
+                    default:
+                        InvalidSelection("You choice invalid!");
+                        break;
+                }
+            }while(choice != "4");
         }
     }
 }
