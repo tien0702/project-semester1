@@ -17,12 +17,6 @@ namespace DAL
             }
             return connection;
         }
-
-        public static MySqlDataReader ExecQuery(string query){
-            MySqlCommand command = new MySqlCommand(query, connection);
-            return command.ExecuteReader();
-        }
-
         private DbHelper(){}
     }
 }

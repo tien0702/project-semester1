@@ -16,5 +16,8 @@ namespace BL
         public List<Product> SearchByCategory(Category category){
             return dal.GetByCategory(category);
         }
+        public List<Topping> GetToppings(){
+            return dal.GetToppings();
+        }
     }
 }

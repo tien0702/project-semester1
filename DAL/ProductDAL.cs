@@ -25,6 +25,7 @@ namespace DAL
                 Size = reader.GetString("product_size"),
                 ProductType = reader.GetString("product_type"),
                 Sugar = reader.GetString("product_sugar"),
+                Quantity = reader.GetInt32("quantity"),
                 Ice = reader.GetString("product_ice"),
             };
             return product;
@@ -106,6 +107,35 @@ namespace DAL
                 connection.Close();
             }
             return products;
+        }
+        public List<Topping> GetToppings(){
+            List<Topping> toppings = null;
+            try
+            {
+                connection.Open();
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = @"select *from Topping;";
+                MySqlDataReader reader = cmd.ExecuteReader();
+                if(reader.Read()){
+                    toppings = new List<Topping>();
+                    do{
+                        toppings.Add(new Topping(){
+                            ToppingId = reader.GetInt32("topping_id"),
+                            ToppingName = reader.GetString("topping_name"),
+                            UnitPrice = reader.GetDouble("unit_price")
+                        });
+                    }while(reader.Read());
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally{
+                connection.Close();
+            }
+            return toppings;
         }
     }
 }

@@ -19,8 +19,5 @@ namespace Persistance
                 return string.Format("{0} {1} {2}", FirstName, MiddleName, LastName);
             }
         }
-        
-        private int SALE_ROLE = 2;
-        private int MANAGER_ROLE = 1;
     }
 }

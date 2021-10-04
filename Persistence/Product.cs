@@ -16,7 +16,7 @@ namespace Persistance
         public string Ice{set; get;}
         public string ProductInfo{
             get{
-                return string.Format("{0, -55}+{2,-2}K", ProductName, Quantity, (Price*Quantity)/1000);
+                return string.Format("{0, -55}+{2,-2}K", ProductName, Quantity, (Price)/1000);
             }
         }
         public Product()

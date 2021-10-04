@@ -53,6 +53,7 @@ create table Topping(
     topping_name varchar(250) not null,
     unit_price numeric not null
 );
+
 insert into Topping(topping_name, unit_price) values 
 			('Trân Châu Sương Mai', 9000),
             ('Hạt Dẻ', 8000),
@@ -68,14 +69,6 @@ insert into Topping(topping_name, unit_price) values
             ('Trân Châu Sợi', 8000),
             ('Đậu Đỏ', 8000),
             ('Trân Châu Ruby', 8000);
--- insert into Ice(ice_id, percent) values 
-				-- (1, 'Không Đá Mát'), '1,2,3,4,5,6,7'
---                 (2, '30% Đá'),
---                 (3, '50% Đá'),
---                 (4, '70% Đá'),
---                 (5, '100% Đá'),
---                 (6, 'Không Đá'),
---                 (7, 'Làm Nóng');
 
 create table Product(
 	product_id int auto_increment primary key not null,
@@ -83,12 +76,16 @@ create table Product(
     product_name varchar(150) not null,
     unit_price double not null,
     product_type varchar(10),
-    product_size varchar(10) default 'M, L',
+    product_size varchar(10) default '1,2',
     product_sugar varchar(20),
     product_ice varchar(20),
     quantity int not null,
     foreign key(product_category_id) references Category(category_id)
 );
+alter table Product
+drop column product_size,
+add column product_size varchar(20) default '1,2';
+
 -- 1- Không đường, 2- 30%, 3- 50%, 4- 70%, 5- 100%
 -- 1- Không đá mát, 2- 30%, 3- 50%, 4- 70%, 5- 100%, 6- Không đá, 7- Làm nóng
 insert into Product(product_category_id, product_name, quantity, unit_price, product_type, product_sugar, product_ice) values
@@ -148,64 +145,43 @@ insert into Product(product_category_id, product_name, quantity, unit_price, pro
                     (5, 'Sữa Chua Dâu Tằm Hạt Dẻ', '50', "42000", '2', '4,5', '4,5'),                -- 49
                     (5, 'Sữa Chua Trắng', '50', "32000", '2', '4,5', '4,5');                         -- 50
 
+
+-- create table invoice detail
 create table InvoiceDetail(
+	invoice_detail_no int not null primary key auto_increment,
 	invoice_no int not null,
     product_id int not null,
     amount int default 1,
     size varchar(2),
-    price numeric not null,
     type varchar(2),
     sugar varchar(2),
     ice varchar(2),
-    primary key(invoice_no, product_id),
     foreign key(invoice_no) references Invoice(invoice_no),
     foreign key(product_id) references Product(product_id)
 );
+
 create table InvoiceDetailTopping(
+	topping_detail_no int not null primary key auto_increment,
 	invoice_no int not null,
     product_id int not null,
     topping_id int not null,
-    unit_price numeric,
-    primary key(invoice_no, product_id, topping_id),
     foreign key(invoice_no) references Invoice(invoice_no),
     foreign key(product_id) references Product(product_id),
     foreign key(topping_id) references Topping(topping_id)
 );
 
-alter table Invoice auto_increment = 1001;
-insert into Invoice(invoice_cashierId, total_due, status, payment_method, note) value
-				(2, 100000, 2, 1, 'tien order');
-insert into InvoiceDetail(invoice_no, product_id, amount, size, type, sugar, ice, price) values
-				(1026, 2, 2, 'M', '1', '2', '3', 50000),
-                (1026, 3, 1, 'L', '2', '5', '7', 75000);
-insert into InvoiceDetailTopping(invoice_no, product_id, topping_id, unit_price) values
-				(1026, 12, 12, 8000),
-                (1026, 2, 1, 8000),
-                (1026, 3, 4, 8000),
-                (1026, 2, 9, 8000);
-
-
-select *from Invoice, Cashier
-where status = 2 and invoice_cashierId = cashierId;
-
-update Invoice set status = 3 where invoice_no = 1001;
-
-select *from Invoice, Cashier
- where status = 2 and invoice_cashierId = cashierId;
-
 select *from Invoice;
 select *from InvoiceDetail;
 select *from InvoiceDetailTopping;
-select *from Invoice, Cashier
-where invoice_no = 1006
-and invoice_cashierId = cashierId;
 
-select *from InvoiceDetail, Product, Category
-where invoice_no = 1006
-and InvoiceDetail.product_id = Product.product_id
-and Product.product_category_id = Category.category_id;
-
-select *from InvoiceDetailTopping, Topping
-where invoice_no = 1006
--- and product_id = 2
-and InvoiceDetailTopping.topping_id = Topping.topping_id;
+alter table Invoice auto_increment = 1001;
+insert into Invoice(invoice_cashierId, total_due, status, payment_method, note) value
+				(2, 100000, 2, 1, 'tien order');
+insert into InvoiceDetail(invoice_no, product_id, amount, size, type, sugar, ice) values
+				(1001, 3, 2, '1', '1', '2', '3'),
+                (1001, 3, 1, '1', '2', '5', '7');
+insert into InvoiceDetailTopping(invoice_no, product_id, topping_id) values
+				(1001, 12, 12),
+                (1001, 12, 1),
+                (1001, 3, 4),
+                (1001, 2, 9);

@@ -95,7 +95,7 @@ namespace DAL
                     if(invoice.InvoiceCashier == null || invoice.InvoiceCashier.CashierId == null){
                         throw new Exception("Can't Find Cashier!");
                     }
-                    // get new invoice no
+                    // get new invoice_no
                     cmd.CommandText = @"select invoice_no from Invoice order by invoice_no desc limit 1;";
                     reader = cmd.ExecuteReader();
                     if(reader.Read()){
@@ -103,39 +103,61 @@ namespace DAL
                     }
                     reader.Close();
                     // insert new invoice
-                    cmd.CommandText = @"insert into Invoice(invoice_no, invoice_cashierId, total_due, status, payment_method, note)
-                                        value (@invoiceNo, @cashierId, @total, @status, @paymentMethod, ifnull(@note, ''));";
+                    cmd.CommandText = @"insert into Invoice(invoice_no, invoice_cashierId, status, payment_method, note)
+                                        value (@invoiceNo, @cashierId, @status, @paymentMethod, ifnull(@note, ''));";
                     cmd.Parameters.Clear();
                     cmd.Parameters.AddWithValue("@invoiceNo", invoice.InvoiceNo);
                     cmd.Parameters.AddWithValue("@cashierId", invoice.InvoiceCashier.CashierId);
-                    cmd.Parameters.AddWithValue("@total", invoice.Total);
                     cmd.Parameters.AddWithValue("@status", invoice.Status);
                     cmd.Parameters.AddWithValue("@paymentMethod", invoice.PaymentMethod);
                     cmd.Parameters.AddWithValue("@note", invoice.Note);
                     cmd.ExecuteNonQuery();
                     foreach(Product p in invoice.ListProduct){
                         if(p == null || p.ProductId == null){
-                                throw new Exception("Not Exists Product!");
+                            throw new Exception("Not Exists Product!");
                         }
+                        // get unit_price
+                        cmd.CommandText = @"select unit_price from Product where product_id = '"+p.ProductId+"';";
+                        reader = cmd.ExecuteReader();
+                        if(reader.Read()) invoice.Total += reader.GetDouble("unit_price") * p.Quantity;
+                        reader.Close();
                         cmd.CommandText = @"insert into InvoiceDetail(invoice_no, product_id, amount,
-                                            price, size, type, sugar, ice) value 
-                                            (@invoiceNo, @productId, @amount, @price, @size, @type, @sugar, @ice);";
+                                             size, type, sugar, ice) value 
+                                            (@invoiceNo, @productId, @amount, @size, @type, @sugar, @ice);";
                         cmd.Parameters.Clear();
                         cmd.Parameters.AddWithValue("@invoiceNo", invoice.InvoiceNo);
                         cmd.Parameters.AddWithValue("@productId", p.ProductId);
                         cmd.Parameters.AddWithValue("@amount", p.Quantity);
-                        cmd.Parameters.AddWithValue("@price", p.Price);
                         cmd.Parameters.AddWithValue("@size", p.Size);
                         cmd.Parameters.AddWithValue("@type", p.ProductType);
                         cmd.Parameters.AddWithValue("@sugar", p.Sugar);
                         cmd.Parameters.AddWithValue("@ice", p.Ice);
                         cmd.ExecuteNonQuery();
+                        // get quantity
+                        cmd.CommandText = "select quantity from Product where product_id = '"+p.ProductId+"';";
+                        reader = cmd.ExecuteReader();
+                        int check = 0;
+                        if(reader.Read()){
+                            check = reader.GetInt32("quantity");
+                        }
+                        reader.Close();
+                        if(check < p.Quantity){
+                            throw new Exception("Quantity is not enough for "+p.ProductName+"");
+                        }
+                        cmd.CommandText = "update Product set quantity = quantity - '" + p.Quantity + "' where product_id = '" + p.ProductId + "';";
+                        cmd.ExecuteNonQuery();
                         foreach(Topping tp in p.ListTopping){
-                            cmd.CommandText = @"insert into InvoiceDetailTopping(invoice_no, product_id, topping_id, unit_price) value
-                                                        ('"+invoice.InvoiceNo+"', '"+p.ProductId+"', '"+tp.ToppingId+"', '"+tp.UnitPrice+"');";
+                            cmd.CommandText = @"insert into InvoiceDetailTopping(invoice_no, product_id, topping_id) value
+                                                        ('"+invoice.InvoiceNo+"', '"+p.ProductId+"', '"+tp.ToppingId+"');";
                             cmd.ExecuteNonQuery();
+                            cmd.CommandText = @"select unit_price from Topping where topping_id = '" + p.ProductId + "';";
+                            reader = cmd.ExecuteReader();
+                            if(reader.Read()) invoice.Total += reader.GetDouble("unit_price");
+                            reader.Close();
                         }
                     }
+                    cmd.CommandText = "update Invoice set total_due = '"+invoice.Total+"' where invoice_no = '"+invoice.InvoiceNo+"';";
+                    cmd.ExecuteNonQuery();
                     trans.Commit();
                     result = true;
                 }catch(Exception ex){
