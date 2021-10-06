@@ -46,7 +46,7 @@ namespace DAL
                                 CategoryId = reader.GetInt32("category_id"),
                                 CategoryName = reader.GetString("category_name")
                             },
-                            Price = reader.GetDouble("price"),
+                            Price = reader.GetDouble("unit_price"),
                             Sugar = reader.GetString("sugar"),
                             Ice = reader.GetString("ice"),
                             Quantity = reader.GetInt32("amount")

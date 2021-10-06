@@ -11,12 +11,16 @@ namespace ConsoleAppPL
         /// <summary> <c></c> Hiển thị nội dung truyền vào cùng tên của Box, tham số isRight xác định vị trí hiện.</summary>
         public void ViewBox(string[] content, string name_box, bool isRight){
             Coordinates box;
+            Coordinates page;
             if(isRight){
                 box = Box.BOX_RIGHT;
+                page = Box.PAGE_RIGHT;
             }else{
                 box = Box.BOX_LEFT;
+                page = Box.PAGE_LEFT;
             }
             data.ClearAt(box);
+            data.ClearAt(page);
             data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
             if(content[0] == null){
                 Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
@@ -33,12 +37,16 @@ namespace ConsoleAppPL
         public string ViewBox(string[] content, int number_choice, string[] keywords, string name_box, bool isRight){
             string choice = string.Empty;
             Coordinates box;
+            Coordinates page;
             if(isRight){
                 box = Box.BOX_RIGHT;
+                page = Box.PAGE_RIGHT;
             }else{
                 box = Box.BOX_LEFT;
+                page = Box.PAGE_LEFT;
             }
             data.ClearAt(box);
+            data.ClearAt(page);
             data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
             if(content == null || content[0] == null){
                 Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
@@ -65,7 +73,44 @@ namespace ConsoleAppPL
             }while(choice != "Escape");
             return choice;
         }
-        /// <summary> <c></c> .</summary>
+        public List<Page> ShowOrder(List<Product> products){
+            List<Page> pages = new List<Page>();
+            string[] Sizes =new string[]{"", "M", "L"};
+            if(products == null || products.Count == 0){
+                pages.Add(new Page());
+                return pages;
+            }
+            pages = new List<Page>();
+            Page page = new Page();
+            int count = 0;
+            int count_products = products.Count;
+            int line = 0;
+            int page_number = 1;
+            int convert;
+            double total;
+            while(count < count_products){
+                if(line == 0){
+                    page = new Page();
+                    page.PageNumber = page_number++;
+                }
+                page.KeyIndex.Add(line+1, (int)products[count].ProductId);
+                int.TryParse(products[count].Size.ToCharArray()[0].ToString(), out convert);
+                total = products[count].Price;
+                foreach(var tp in products[count].ListTopping){
+                    total += tp.UnitPrice;
+                }
+                total = total * products[count].Quantity;
+                page.View[line++] = string.Format("{0, -2}. {1, -50}{2, 10}K", line, string.Format("{0} ({1}) x{2}", products[count].ProductName, Sizes[convert], products[count++].Quantity), (total)/1000);
+                if(count == count_products){
+                    pages.Add(page);
+                }
+                if(line == 16){
+                    line = 0;
+                    pages.Add(page);
+                }
+            }
+            return pages;
+        }
         public void ClearBox(bool boxLeft, bool boxRight, bool pageLeft, bool pageRight, bool boxTutorial){
             if(boxLeft){
                 data.ClearAt(Box.BOX_LEFT);
@@ -83,25 +128,8 @@ namespace ConsoleAppPL
                 data.ClearAt(Box.BOX_TUTORIAL);
             }
         }
-        /// <summary> <c></c> Hiển thị thông báo lỗi, tại Box Choice.</summary>
-        public void InvalidSelection(string msg){
-            Console.ForegroundColor = ConsoleColor.Red;
-            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-            Console.ResetColor();
-            Console.ReadKey();
-        }
-        public void CurrentBox(bool isRight){
-            if(isRight){
-                Console.SetCursorPosition(Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
-                data.TextColor("<< Current", ConsoleColor.DarkYellow);
-                data.WriteAt(new string(' ', 10), Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
-            }else{
-                Console.SetCursorPosition(Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
-                data.TextColor("<< Current", ConsoleColor.DarkYellow);
-                data.WriteAt(new string(' ', 10), Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
-            }
-        }
-        public List<Page> InvoicePages(List<Invoice> invoices){// cắt list Invoice thành list Page
+        /// <summary> <c></c>cắt "List Invoice thành List Page.</summary>
+        public List<Page> InvoicePages(List<Invoice> invoices){
             List<Page> pages = new List<Page>();
             if(invoices == null){
                 pages.Add(new Page());
@@ -129,22 +157,6 @@ namespace ConsoleAppPL
                 }
             }
             return pages;
-        }
-
-        public void BoxTutorial(string[] options){// Hiển thị hướng dẫn các nút điều hướng
-            data.ClearAt(Box.BOX_TUTORIAL);
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            int length = options.Length;
-            int pos_x = Box.BOX_TUTORIAL.Left;
-            int pos_y = Box.BOX_TUTORIAL.Top;
-            for(int i = 0; i <length; i++){
-                if(pos_y == Box.BOX_TUTORIAL.Bott+1){
-                    pos_x = Box.BOX_TUTORIAL.Left+30;
-                    pos_y = Box.BOX_TUTORIAL.Top;
-                }
-                data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
-            }
-            Console.ResetColor();
         }
         public List<Page> ProductPages(List<Product> products){ //cắt list Product thành list Page
             List<Page> pages = new List<Page>();
@@ -187,7 +199,40 @@ namespace ConsoleAppPL
             }
             return pages;
         }
-        
+        /// <summary> <c></c> Hiển thị thông báo lỗi, tại Box Choice.</summary>
+        public void InvalidSelection(string msg){
+            Console.ForegroundColor = ConsoleColor.Red;
+            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        public void BoxTutorial(string[] options){// Hiển thị hướng dẫn các nút điều hướng
+            data.ClearAt(Box.BOX_TUTORIAL);
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            int length = options.Length;
+            int pos_x = Box.BOX_TUTORIAL.Left;
+            int pos_y = Box.BOX_TUTORIAL.Top;
+            for(int i = 0; i <length; i++){
+                if(pos_y == Box.BOX_TUTORIAL.Bott+1){
+                    pos_x = Box.BOX_TUTORIAL.Left+30;
+                    pos_y = Box.BOX_TUTORIAL.Top;
+                }
+                data.WriteAt(string.Format(" ▸ " + options[i]), pos_x, pos_y++);
+            }
+            Console.ResetColor();
+        }
+        public void CurrentBox(bool isRight){
+            if(isRight){
+                Console.SetCursorPosition(Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+            }else{
+                Console.SetCursorPosition(Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+                data.TextColor("<< Current", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 10), Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+            }
+        }
         public void ShowNumberPage(int current_page, int max_page, bool isRight) // hiển thị (số trang hiện tại)/(số trang tối đa) của box phải nếu isRight = true
         {
             Coordinates box;

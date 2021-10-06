@@ -20,6 +20,7 @@ namespace Persistance
         public Invoice(){
             ListProduct = new List<Product>();
             Date = DateTime.Now;
+            Status = 1;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ConsoleAppPL
         public static string[] Sugars = new string[]{"", "70%", "30%", "50%", "100%", "Không Đường"};
         public static string[] Ices = new string[]{"","Không Đá Mát", "30%", "50%", "70%", "100%", "Không Đá", "Làm Nóng"};
         public static string[] Types = new string[]{"","Nóng", "Lạnh"};
-        public static string[] Sizes =new string[]{"", "Size M", "Size L"};
+        public static string[] Sizes =new string[]{"", "M", "L"};
     }
     class ProductPL: Menu{
         private InputAndOutputData data = new InputAndOutputData();
@@ -102,10 +102,7 @@ namespace ConsoleAppPL
                     case "Escape":
                         break;
                     default :
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        data.WriteAt("You choice invalid! Press any key to continue....", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                        Console.ResetColor();
-                        Console.ReadKey();
+                        InvalidSelection("You choice invalid!");
                         break;
                 }
             }while(choice != "Escape");
@@ -163,7 +160,7 @@ namespace ConsoleAppPL
                         string remove;
                         do{
                             BoxTutorial(tutorial);
-                            remove = data.GetChoice("Toppings are now added, do you want to remove?", new string[]{"Escape"});
+                            remove = data.GetChoice(string.Format(toppings[convert-1].ToppingName + " has been added, do you want to remove it?"), new string[]{"Escape"});
                             if(remove == "Enter"){
                                 product.ListTopping.Remove(check);
                             }
@@ -217,7 +214,7 @@ namespace ConsoleAppPL
         public void ProductDetails(Product product){
             data.ClearAt(Box.BOX_RIGHT);
             Page page = new Page();
-            double price = 0;
+            double price = product.Price;
             int x = Box.BOX_RIGHT.Left;
             int y = Box.BOX_RIGHT.Top;
             int sugar; int.TryParse(product.Sugar.ToCharArray()[0].ToString(), out sugar);
@@ -245,10 +242,12 @@ namespace ConsoleAppPL
                     }else{
                         data.WriteAt(string.Format("+ " + product.ListTopping[i].ToppingName), x+4, y++);
                     }
+                    price += product.ListTopping[i].UnitPrice;
                 }
             }
+            price = price * product.Quantity;
             Console.SetCursorPosition(Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Bott);
-            data.TextColor(string.Format(" >| Price: {0, 53}K", (product.Price + price)/1000), ConsoleColor.Blue);
+            data.TextColor(string.Format(" >| Price: {0, 53}K", (price)/1000), ConsoleColor.Blue);
         }
     }
 }

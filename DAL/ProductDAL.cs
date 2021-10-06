@@ -30,6 +30,33 @@ namespace DAL
             };
             return product;
         }
+        public bool UpdateQuantity(int product_id, int order_quantity){
+            bool result = false;
+            try{
+                if(product_id < 0 || order_quantity < 0){
+                    throw new Exception("Can't update");
+                }
+                connection.Open();
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = @"select quantity from Product where product_id = '"+product_id+"';";
+                MySqlDataReader reader = cmd.ExecuteReader();
+                int quantity = 0;
+                if(reader.Read()){
+                    quantity = reader.GetInt32("quantity");
+                }
+                reader.Close();
+                if(quantity >= order_quantity){
+                    cmd.CommandText = @"update quantity = quantity - '"+order_quantity+"' from Product where product_i = '"+product_id+"';";
+                    cmd.ExecuteReader();
+                    result = true;
+                }
+            }catch(Exception ex){
+                Console.WriteLine(ex);
+            }finally{
+                connection.Close();
+            }
+            return result;
+        }
         private Topping GetTopping(MySqlDataReader reader){
             Topping topping = new Topping(){
                 ToppingId = reader.GetInt32("topping_id"),

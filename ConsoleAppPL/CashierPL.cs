@@ -11,16 +11,16 @@ namespace ConsoleAppPL
             string[] keyword = new string[]{"Escape", "LeftArrow", "RightArrow"};
             string[] menu = new string[]{" A: Order", " ESC: Log Out"};
             InvoiceBL invoiceBL = new InvoiceBL();
-            List<Invoice> invoices = invoiceBL.GetByStatus(2);
-            List<Page> pages = InvoicePages(invoices);
-            int current_page = 1;
-            int max_page = pages.Count;
-            string choice = string.Empty;
-            Form("Menu Cashier");
-            ViewBox(pages[current_page-1].View, "List Invoice", false);
-            ViewBox(menu, "Menu", true);
-            ShowNumberPage(current_page, max_page, false);
+                string choice = string.Empty;
             do{
+                List<Invoice> invoices = invoiceBL.GetByStatus(2);
+                List<Page> pages = InvoicePages(invoices);
+                int current_page = 1;
+                int max_page = pages.Count;
+                Form("Menu Cashier");
+                ViewBox(pages[current_page - 1].View, "List Invoice", false);
+                ViewBox(menu, "Menu", true);
+                ShowNumberPage(current_page, max_page, false);
                 choice = data.GetChoice("Your Choice", keyword);
                 switch(choice){
                     case "A": case "a":
@@ -52,11 +52,9 @@ namespace ConsoleAppPL
                         int key, value;
                         int.TryParse(choice, out key);
                         if(pages[current_page-1].KeyIndex.TryGetValue(key, out value)){
-                            Console.WriteLine("Inted");
+                            new InvoicePL().CreateInvoice(invoiceBL.GetByNo(value));
                         }else{
-                            Console.SetCursorPosition(Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                            data.TextColor(" Invalid!", ConsoleColor.Red);
-                            Console.ReadKey();
+                            InvalidSelection("You choice invalid!");
                         }
                         break;
                 }
