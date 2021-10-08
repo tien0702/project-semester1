@@ -22,5 +22,8 @@ namespace BL
         public bool UpdateQuantity(int product_id, int order_quantity){
             return dal.UpdateQuantity(product_id, order_quantity);
         }
+        public int GetQuantity(int product_id){
+            return dal.GetQuantity(product_id);
+        }
     }
 }

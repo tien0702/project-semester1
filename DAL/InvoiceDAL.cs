@@ -95,6 +95,7 @@ namespace DAL
                     if(invoice.InvoiceCashier == null || invoice.InvoiceCashier.CashierId == null){
                         throw new Exception("Can't Find Cashier!");
                     }
+                    invoice.Total = 0;
                     // get new invoice_no
                     cmd.CommandText = @"select invoice_no from Invoice order by invoice_no desc limit 1;";
                     reader = cmd.ExecuteReader();
@@ -119,7 +120,8 @@ namespace DAL
                         // get unit_price
                         cmd.CommandText = @"select unit_price from Product where product_id = '"+p.ProductId+"';";
                         reader = cmd.ExecuteReader();
-                        if(reader.Read()) invoice.Total += reader.GetDouble("unit_price") * p.Quantity;
+                        double size = (p.Size == "2")?(6000):(0);
+                        if(reader.Read()) invoice.Total += (reader.GetDouble("unit_price")+size) * p.Quantity;
                         reader.Close();
                         cmd.CommandText = @"insert into InvoiceDetail(invoice_no, product_id, amount,
                                              size, type, sugar, ice) value 
@@ -142,7 +144,7 @@ namespace DAL
                         }
                         reader.Close();
                         if(check < p.Quantity){
-                            throw new Exception("Quantity is not enough for "+p.ProductName+"");
+                            throw new Exception("Quantity is not enough for \""+p.ProductName+"\", remaining "+check+"!");
                         }
                         cmd.CommandText = "update Product set quantity = quantity - '" + p.Quantity + "' where product_id = '" + p.ProductId + "';";
                         cmd.ExecuteNonQuery();
@@ -161,10 +163,10 @@ namespace DAL
                     trans.Commit();
                     result = true;
                 }catch(Exception ex){
-                    Console.WriteLine(ex);
                     try{
                         trans.Rollback();
                     }catch{}
+                    throw new Exception(ex.Message);
                 }
                 finally
                 {
@@ -172,7 +174,7 @@ namespace DAL
                     cmd.ExecuteNonQuery();
                 }
             }catch(Exception ex){
-                Console.WriteLine(ex);
+                throw new Exception(ex.Message);
             }
             finally
             {

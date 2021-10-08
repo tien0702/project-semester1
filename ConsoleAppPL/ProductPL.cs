@@ -9,7 +9,7 @@ namespace ConsoleAppPL
         public static string[] Sugars = new string[]{"", "70%", "30%", "50%", "100%", "Không Đường"};
         public static string[] Ices = new string[]{"","Không Đá Mát", "30%", "50%", "70%", "100%", "Không Đá", "Làm Nóng"};
         public static string[] Types = new string[]{"","Nóng", "Lạnh"};
-        public static string[] Sizes =new string[]{"", "M", "L"};
+        public static string[] Sizes = new string[]{"", "M", "L"};
     }
     class ProductPL: Menu{
         private InputAndOutputData data = new InputAndOutputData();
@@ -40,6 +40,7 @@ namespace ConsoleAppPL
             string name_box = "Customize";
             do{
                 ClearBox(false, false, true, true, true);
+                ShowNameMenu("Menu Product");
                 BoxTutorial(new string[]{"Escape: Done"});
                 ViewBox(options, name_box, false);
                 ProductDetails(productCus);
@@ -118,15 +119,16 @@ namespace ConsoleAppPL
         }
         public void CustomizeQuantity(Product product){
             string input = string.Empty;
-            int amount;
+            int quantity = bl.GetQuantity((int)product.ProductId);
+            int amount = 0;
             while(true){
                 ProductDetails(product);
                 BoxTutorial(new string[] { "ESC: Done" });
                 input = data.GetChoice("Enter the quantity", new string[]{"Escape"});
                 if(input != "Escape"){
                     int.TryParse(input, out amount);
-                    if(amount < 0 || amount > 200){
-                        InvalidSelection("Invalid or exceeded quantity!");
+                    if(amount < 0){
+                        InvalidSelection(string.Format("Invalid, Remaining quantity is {0}!", quantity));
                     }else{
                         product.Quantity = amount;
                     }
@@ -215,6 +217,7 @@ namespace ConsoleAppPL
             data.ClearAt(Box.BOX_RIGHT);
             Page page = new Page();
             double price = product.Price;
+            if(product.Size == "2") price += 6000;
             int x = Box.BOX_RIGHT.Left;
             int y = Box.BOX_RIGHT.Top;
             int sugar; int.TryParse(product.Sugar.ToCharArray()[0].ToString(), out sugar);

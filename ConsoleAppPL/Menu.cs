@@ -2,6 +2,7 @@ using System;
 using Persistance;
 using BL;
 using System.Linq;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace ConsoleAppPL
@@ -33,6 +34,10 @@ namespace ConsoleAppPL
             }
         }
 
+        public void ShowNameMenu(string name){
+            data.ClearAt(new Coordinates(){Left = 54, Right = 80, Top = 4, Bott = 4});
+            data.WriteAt(name, 72-(name.Length/2), 4);
+        }
         /// <summary> <c></c> Hiển thị nội dung truyền vào cùng tên của Box, tham số isRight xác định vị trí hiện. Return lựa chọn.</summary>
         public string ViewBox(string[] content, int number_choice, string[] keywords, string name_box, bool isRight){
             string choice = string.Empty;
@@ -96,6 +101,7 @@ namespace ConsoleAppPL
                 page.KeyIndex.Add(line+1, (int)products[count].ProductId);
                 int.TryParse(products[count].Size.ToCharArray()[0].ToString(), out convert);
                 total = products[count].Price;
+                if(products[count].Size == "2") total += 6000;
                 foreach(var tp in products[count].ListTopping){
                     total += tp.UnitPrice;
                 }
@@ -130,8 +136,9 @@ namespace ConsoleAppPL
         }
         /// <summary> <c></c>cắt "List Invoice thành List Page.</summary>
         public List<Page> InvoicePages(List<Invoice> invoices){
+            double price = 0;
             List<Page> pages = new List<Page>();
-            if(invoices == null){
+            if(invoices == null || invoices.Count == 0){
                 pages.Add(new Page());
                 return pages;
             }
@@ -140,14 +147,22 @@ namespace ConsoleAppPL
             int count = 0;
             int count_invoice = invoices.Count;
             int line = 0;
+            int index = 0;
             int page_number = 1;
             while(count < count_invoice){
                 if(line == 0){
                     page = new Page();
                     page.PageNumber = page_number++;
                 }
-                page.KeyIndex.Add(line+1, (int)invoices[count].InvoiceNo);
-                page.View[line++] = string.Format("{0, -2}. {1}", line, invoices[count++].InvoiceInfo);
+                price = 0;
+                price += invoices[count].ListProduct.Select(
+                    (p) => { 
+                        if(p.Size == "2") price += 6000;
+                        return (p.Price + p.ListTopping.Select((tp) => {return tp.UnitPrice;}).Sum()) * p.Quantity;
+                    }
+                ).Sum();
+                page.KeyIndex.Add(line+1, index++);
+                page.View[line++] = string.Format("{0, -2}. {1, -26} Price: {2, 10}", line, invoices[count].Date, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", invoices[count++].Total));
                 if(count == count_invoice){
                     pages.Add(page);
                 }
@@ -314,7 +329,82 @@ namespace ConsoleAppPL
             Console.WriteLine("█                                                                       ║                                                                     █");
             Console.WriteLine("█                                                                       ║                                                                     █");
             Console.WriteLine("▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀");
+            data.ClearAt(new Coordinates(){Left = 54, Right = 80, Top = 4, Bott = 4});
             data.WriteAt(name_form, 72-(name_form.Length/2), 4);
+        }
+        public void ExportInvoice(Invoice invoice){
+            Console.Clear();
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.WriteLine("┌────────────────────────────────────────────────────────────────────┐"); // 70
+            Console.WriteLine("│                                                                    │");
+            Console.WriteLine("│                                                                    │");
+            Console.WriteLine(@"│               The  █▀▀▄   █▀▀▀  █     ▀ █▀▀▀ █▀▀▀       / _ \      │");
+            Console.WriteLine(@"│                    █▄▄▀   █     █     █ █    █        \_\(_)/_/    │");
+            Console.WriteLine(@"│                    █ ▀▄   █▀▀▀  █     █ █▀▀  █▀▀▀      _//o\\_     │");
+            Console.WriteLine(@"│                    █   █  █▄▄▄▄ █▄▄▄▄ █ █    █▄▄▄▄      /   \      │");
+            Console.WriteLine("│                                          Tea & Light Food          │");
+            Console.WriteLine("│                                                                    │");
+            Console.WriteLine("│                          Hoá Đơn Thanh Toán                        │");
+            Console.WriteLine("│                                                                    │");
+            Console.WriteLine("│  Số Hoá Đơn: {0, -10}                                            │", invoice.InvoiceNo);
+            Console.WriteLine("│  Thu Ngân  : {0, -30}                        │", invoice.InvoiceCashier.FullName);
+            Console.WriteLine("│  Ngày      : {0, -15}       Giờ: {1, -15}            │", string.Format("{0: dd/MM/yyyy}", invoice.Date), string.Format("{0: HH:mm:ss}", invoice.Date));
+            Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
+            Console.WriteLine("│    Tên Hàng                             SL     ĐG      T.Tiền      │");//42 48 55
+            Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
+            Console.WriteLine("│                                                                    │");
+            InvoiceText(invoice.ListProduct);
+            Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
+            Console.WriteLine("│    Tổng Cộng:                                          {0, -10}  │", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", invoice.Total));
+            Console.WriteLine("│  {0, -65} │", ToText(invoice.Total.ToString()));
+            Console.WriteLine("│                                                                    │");
+            Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
+            Console.WriteLine("│                      Xin Cảm Ơn - Hẹn Gặp Lại                      │");
+            Console.WriteLine("└────────────────────────────────────────────────────────────────────┘");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        public void InvoiceText(List<Product> products){
+            string[] sizes = new string[]{"", "M", "L"};
+            int convert;
+            foreach(var p in products){
+                int.TryParse(p.Size, out convert);
+                if(p.Size == "2") p.Price += 6000;
+                Console.WriteLine("│  {0, -39}{1, -3}{2, 9}{3, 9}      │", string.Format("{0} ({1})", p.ProductName, sizes[convert]), ((byte)p.Quantity)
+                , string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", p.Price), string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", p.Price*p.Quantity));
+                foreach(var tp in p.ListTopping){
+                    Console.WriteLine("│   +{0, -47}{1, 11}      │", tp.ToppingName, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", tp.UnitPrice));
+                }
+                // Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
+                Console.WriteLine("│ .................................................................. │");
+            }
+        }
+        
+        public static string ToText(string str)
+        {
+            string[] word = { "", " Một", " Hai", " Ba", " Bốn", " Năm", " Sáu", " Bảy", " Tám", " Chín" };
+            string[] million = { "", " Mươi", " Trăm", "" };
+            string[] billion = { "", "", "", " Nghìn", "", "", " Triệu", "", "" };
+            string result = "{0}";
+            int count = 0;
+            for (int i = str.Length - 1; i >= 0; i--)
+            {
+                if (count > 0 && count % 9 == 0)
+                    result = string.Format(result, "{0} tỷ");
+                if (!(count < str.Length - 3 && count > 2 && str[i].Equals('0') && str[i - 1].Equals('0') && str[i - 2].Equals('0')))
+                    result = string.Format(result, "{0}" + billion[count % 9]);
+                if (!str[i].Equals('0'))
+                    result = string.Format(result, "{0}" + million[count % 3]);
+                else if (count % 3 == 1 && count > 1 && !str[i - 1].Equals('0') && !str[i + 1].Equals('0'))
+                    result = string.Format(result, "{0} Đồng");
+                var num = Convert.ToInt16(str[i].ToString());
+                result = string.Format(result, "{0}" + word[num]);
+                count++;
+            }
+            result = result.Replace("{0}", "");
+            return result.Trim();
         }
     }
 }

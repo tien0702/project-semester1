@@ -21,6 +21,7 @@ namespace Persistance
             ListProduct = new List<Product>();
             Date = DateTime.Now;
             Status = 1;
+            InvoiceNo = 0;
         }
     }
 }

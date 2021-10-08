@@ -26,10 +26,10 @@ namespace ConsoleAppPL
             int current_page_right = 1; int max_page_right = order.Count; // box right
             ProductPL pl = new ProductPL();
             Dictionary<int, int> key_index = null;
-            string choice = "Update";
+            string choice = "update";
             do{
-                switch(choice){
-                    case "Update":
+                switch(choice.ToLower()){
+                    case "update":
                         order = ShowOrder(invoice.ListProduct);
                         current_page_right = 1;  max_page_right = order.Count; // box right
                         pages = current_pages;
@@ -37,9 +37,10 @@ namespace ConsoleAppPL
                         max_page_left = pages.Count;
                         key_index = pages[0].KeyIndex;
                         isControlRight = false;
-                        choice = "View";
+                        choice = "view";
                         break;
-                    case "View":
+                    case "view":
+                        ShowNameMenu("Menu Invoice");
                         ViewBox(pages[current_page_left - 1].View, "List Product", false);
                         ViewBox(order[current_page_right - 1].View, "Order", true);
                         Pricing(invoice);
@@ -54,73 +55,71 @@ namespace ConsoleAppPL
                         }
                         choice = data.GetChoice("Your Choice", keyword);
                         break;
-                    case "A": case "a":// search by id 
+                    case "a":// search by id 
                         
                         break;
-                    case "B": case "b":// search by name
+                    case "b":// search by name
                         List<Page> p = pl.SearchByName();
                         if(p != null){
                             current_pages = p;
-                            choice = "Update";
+                            choice = "update";
                         }else{
-                            choice = "View";
+                            choice = "view";
                         }
                         break;
-                    case "C": case "c":// search by category
+                    case "c":// search by category
                         Console.WriteLine("Search By Category"); Console.ReadKey();
                         break;
-                    case "End": // -> create invoice
+                    case "end": // -> create invoice
                         if(invoice.ListProduct.Count == 0){
                             InvalidSelection("Order is empty!");
-                            choice = "View";  
+                            choice = "view";  
                         }else
                         {
                             if(CreateInvoice(invoice)){
                             invoice = new Invoice();
-                            Console.WriteLine(invoice.ListProduct.Count);
                                 choice = "Escape";
                             }else
                             {
-                              choice = "View";
+                              choice = "view";
                             }
                         }
-                        
                         break;
-                    case "LeftArrow":
+                    case "leftarrow":
                         if(current_page_left > 1){
                             current_page_left--;
                         }
-                        choice = "View";
+                        choice = "view";
                         break;
-                    case "RightArrow":
+                    case "rightarrow":
                         if (current_page_left < max_page_left){
                             current_page_left++;
                         }
-                        choice = "View";
+                        choice = "view";
                         break;
-                    case "UpArrow":
+                    case "uparrow":
                         if(current_page_right > 1){
                             current_page_right--;
                         }
-                        choice = "View";
+                        choice = "view";
                         break;
-                    case "DownArrow":
+                    case "downarrow":
                         if(current_page_right < max_page_right){
                             current_page_right++;
                         }
-                        choice = "View";
+                        choice = "view";
                         break;
-                    case "Enter":
+                    case "enter":
                         if(isControlRight){
                             isControlRight = false;
                         }else{
                             isControlRight = true;
                         }
-                        choice = "View";
+                        choice = "view";
                         break;
                     case "all":
                         current_pages = ProductPages(bL.SearchByName(0, new Product(){ProductName = ""}));
-                        choice = "Update";
+                        choice = "update";
                         break;
                     default:
                         int key, value;
@@ -132,17 +131,17 @@ namespace ConsoleAppPL
                                 if(product.Quantity == 0){
                                     invoice.ListProduct.Remove(product);
                                 }
-                                choice = "Update";
+                                choice = "update";
                             }else{
                                 product = pl.MenuProduct(bL.SearchByID(value));
                                 if(product.Quantity > 0){
                                     invoice.ListProduct.Add(product);
                                 }
-                                choice = "Update";
+                                choice = "update";
                             }
                         }else{
                             InvalidSelection("You choice invalid!");
-                            choice = "View";
+                            choice = "view";
                         }
                         break;
                 }
@@ -158,7 +157,7 @@ namespace ConsoleAppPL
                         esc = data.GetChoice("Leaving will delete the current listing!", new string[] { "Escape" });
                         if (esc == "Escape")
                         {
-                            choice = "View";
+                            choice = "view";
                         }
                         else if (esc != "Enter" && esc != "Escape")
                         {
@@ -172,6 +171,7 @@ namespace ConsoleAppPL
             bool result = false;
             string[] menu = new string[]{"1. Payment confirmation", "2. Waiting for progressing", "3. Back"};
             Pricing(invoice);
+            data.ClearAt(Box.BOX_TUTORIAL);
             string choice = string.Empty;
             double total = invoice.ListProduct.Select(
                 (p) => { 
@@ -180,34 +180,39 @@ namespace ConsoleAppPL
             ).Sum();
             string[] order_information = new string[]{
                 string.Format("{0, -30} {1}", "Number of Cups: ", invoice.ListProduct.Select(p => {return p.Quantity;}).Sum()),
-                string.Format("{0, -30} {1}", "Total: ", string.Format(new CultureInfo("vi-VN"), "{0:#,##0.00}đ", total))
+                string.Format("{0, -30} {1}", "Total: ", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total))
             };
+            invoice.Total = total;
             ViewBox(order_information, "Order Information", true);
             do{
                 choice = ViewBox(menu, menu.Length, new string[]{""}, "Menu", false);
                 switch(choice){
                     case "1":
                         invoice.Status = 1;
-                        if(bl.CreateInvoice(invoice)){
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            data.WriteAt("Invoice creation successful! Press any key to return menu", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                            Console.ResetColor();
-                            Console.ReadKey();
-                            invoice = new Invoice();
-                            return true;
+                        try{
+                            if(bl.CreateInvoice(invoice)){
+                                ExportInvoice(invoice);
+                                invoice = new Invoice();
+                                return true;
+                            }else
+                            {
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                data.WriteAt("Invoice creation failed! Press any key to return menu", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                                Console.ResetColor();
+                            }
+                        }catch(Exception ex){
+                            InvalidSelection(ex.Message);
                         }
                         break;
                     case "2":
                         invoice.Status = 2;
-                        if(bl.CreateInvoice(invoice)){
-                            Console.ForegroundColor = ConsoleColor.Green;
-                            data.WriteAt("Invoice creation successful! Press any key to return menu", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                            Console.ResetColor();
-                            invoice = new Invoice();
-                            Console.ReadKey();
-                            return true;
-                        }
-                        break;
+                        InvoiceProgressing.Invoices.Add(invoice);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        data.WriteAt("Successful! Press any key to return menu...", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                        Console.ResetColor();
+                        Console.ReadKey();
+                        invoice = new Invoice();
+                        return true;
                     case "3":
                         break;
                     default:
@@ -220,13 +225,18 @@ namespace ConsoleAppPL
         /// <summary> <c></c> Tính tổng giá của hoá đơn và hiển thị.</summary>
         public void Pricing(Invoice invoice){
             double price = 0;
-            price += invoice.ListProduct.Select(
-                (p) => { 
-                    return (p.Price + p.ListTopping.Select((tp) => {return tp.UnitPrice;}).Sum()) * p.Quantity;
+            double total = 0;
+            foreach(var p in invoice.ListProduct){
+                price = 0;
+                price = p.Price;
+                if(p.Size == "2") price += 6000;
+                foreach(var tp in p.ListTopping){
+                    price += tp.UnitPrice;
                 }
-            ).Sum();
+                total += price*p.Quantity;
+            }
             Console.SetCursorPosition(Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Bott);
-            data.TextColor(string.Format(" >| Price: {0, 53}K", (price)/1000), ConsoleColor.Blue);
+            data.TextColor(string.Format(" >| Price: {0, 53}K", (total)/1000), ConsoleColor.Blue);
         }
     }
 }

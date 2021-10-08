@@ -14,10 +14,11 @@ namespace ConsoleAppPL
         {
             Console.InputEncoding = System.Text.Encoding.Unicode;
             Console.OutputEncoding = System.Text.Encoding.Unicode;
-            Cashier cashier = new Cashier(){UserName = "Tientv", Password = "TienPF13", Role = 2, CashierId = 2};
+            // Cashier cashier = new Cashier(){CashierId = 2, UserName = "Tientv", Password = "TienPF13", Role = 2};
+            Cashier cashier = new Cashier();
             CashierPL cashierPL = new CashierPL();
             do{
-                // cashier = Login();
+                cashier = Login();
                 if(cashier.UserName == "Escape"){
                     Console.Clear();
                     data.TextColor("GOODBYE", ConsoleColor.DarkCyan);

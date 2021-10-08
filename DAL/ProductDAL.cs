@@ -30,6 +30,27 @@ namespace DAL
             };
             return product;
         }
+        public int GetQuantity(int product_id){
+            int result = 0;
+            try{
+                if(product_id <= 0){
+                    throw new Exception("Can't Update");
+                }
+                connection.Open();
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = @"select quantity from Product where product_id = '"+product_id+"';";
+                MySqlDataReader reader = cmd.ExecuteReader();
+                if(reader.Read()){
+                    result = reader.GetInt32("quantity");
+                }
+                reader.Close();
+            }catch(Exception ex){
+                Console.WriteLine(ex);
+            }finally{
+                connection.Close();
+            }
+            return result;
+        }
         public bool UpdateQuantity(int product_id, int order_quantity){
             bool result = false;
             try{
@@ -46,12 +67,12 @@ namespace DAL
                 }
                 reader.Close();
                 if(quantity >= order_quantity){
-                    cmd.CommandText = @"update quantity = quantity - '"+order_quantity+"' from Product where product_i = '"+product_id+"';";
+                    cmd.CommandText = @"update Product set quantity = quantity - "+order_quantity+" where product_id = '"+product_id+"';";
                     cmd.ExecuteReader();
                     result = true;
                 }
             }catch(Exception ex){
-                Console.WriteLine(ex);
+                Console.WriteLine(ex); Console.ReadLine();
             }finally{
                 connection.Close();
             }
