@@ -28,7 +28,6 @@ namespace ConsoleAppPL
                 }else if(cashier.Role == 2){
                     cashierPL.MenuCashier(cashier);
                 }
-                Console.ReadKey();
             }while(true);
         }
         static Cashier Login(){

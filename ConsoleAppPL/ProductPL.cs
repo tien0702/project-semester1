@@ -117,6 +117,14 @@ namespace ConsoleAppPL
             }
             return pages;
         }
+        public List<Page> SearchByCategory(){
+            List<Page> pages = null;
+            string search = data.GetChoice("Enter Category Name", new string[]{"Escape"});
+            if(search != "Escape"){
+                pages = ProductPages(bl.SearchByCategory(new Category(){CategoryName = search}));
+            }
+            return pages;
+        }
         public void CustomizeQuantity(Product product){
             string input = string.Empty;
             int quantity = bl.GetQuantity((int)product.ProductId);
@@ -127,7 +135,7 @@ namespace ConsoleAppPL
                 input = data.GetChoice("Enter the quantity", new string[]{"Escape"});
                 if(input != "Escape"){
                     int.TryParse(input, out amount);
-                    if(amount < 0){
+                    if(amount < 0 || amount > quantity){
                         InvalidSelection(string.Format("Invalid, Remaining quantity is {0}!", quantity));
                     }else{
                         product.Quantity = amount;

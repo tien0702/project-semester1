@@ -67,6 +67,7 @@ namespace ConsoleAppPL
                                         break;
                                     case "Enter":
                                     try{
+                                        InvoiceProgressing.Invoices[value].InvoiceCashier = cashier;
                                         if (invoiceBL.CreateInvoice(InvoiceProgressing.Invoices[value]))
                                         {
                                             ExportInvoice(InvoiceProgressing.Invoices[value]);

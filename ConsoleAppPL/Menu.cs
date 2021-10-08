@@ -334,6 +334,17 @@ namespace ConsoleAppPL
         }
         public void ExportInvoice(Invoice invoice){
             Console.Clear();
+            double price = 0;
+            double total = 0;
+            foreach(var p in invoice.ListProduct){
+                price = 0;
+                price = p.Price;
+                if(p.Size == "2") price += 6000;
+                foreach(var tp in p.ListTopping){
+                    price += tp.UnitPrice;
+                }
+                total += price*p.Quantity;
+            }
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
             Console.WriteLine("┌────────────────────────────────────────────────────────────────────┐"); // 70
@@ -356,7 +367,7 @@ namespace ConsoleAppPL
             Console.WriteLine("│                                                                    │");
             InvoiceText(invoice.ListProduct);
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
-            Console.WriteLine("│    Tổng Cộng:                                          {0, -10}  │", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", invoice.Total));
+            Console.WriteLine("│    Tổng Cộng:                                          {0, -10}  │", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total));
             Console.WriteLine("│  {0, -65} │", ToText(invoice.Total.ToString()));
             Console.WriteLine("│                                                                    │");
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
@@ -365,7 +376,6 @@ namespace ConsoleAppPL
             Console.ResetColor();
             Console.ReadKey();
         }
-
         public void InvoiceText(List<Product> products){
             string[] sizes = new string[]{"", "M", "L"};
             int convert;

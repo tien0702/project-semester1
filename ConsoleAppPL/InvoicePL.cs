@@ -55,8 +55,26 @@ namespace ConsoleAppPL
                         }
                         choice = data.GetChoice("Your Choice", keyword);
                         break;
-                    case "a":// search by id 
-                        
+                    case "a":// search by id
+                        string search = data.GetChoice("Enter Product ID", new string[]{"Escape"});
+                        int id;
+                        int.TryParse(search, out id);
+                        ProductBL productBL = new ProductBL();
+                        Product prod = productBL.SearchByID(id);
+                        if(prod != null){
+                            prod = pl.MenuProduct(prod);
+                            if(prod.Quantity > 0){
+                                invoice.ListProduct.Add(prod);
+                                choice = "update";
+                            }else
+                            {
+                                choice = "view";
+                            }
+                        }else
+                        {
+                            InvalidSelection("Not Found!");
+                            choice = "view";
+                        }
                         break;
                     case "b":// search by name
                         List<Page> p = pl.SearchByName();
@@ -67,8 +85,14 @@ namespace ConsoleAppPL
                             choice = "view";
                         }
                         break;
-                    case "c":// search by category
-                        Console.WriteLine("Search By Category"); Console.ReadKey();
+                    case "c":// search by category 
+                        List<Page> ct = pl.SearchByCategory();
+                        if(ct != null){
+                            current_pages = ct;
+                            choice = "update";
+                        }else{
+                            choice = "view";
+                        }
                         break;
                     case "end": // -> create invoice
                         if(invoice.ListProduct.Count == 0){
