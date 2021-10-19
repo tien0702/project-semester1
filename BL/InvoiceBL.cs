@@ -16,5 +16,11 @@ namespace BL
         public List<Invoice> GetByStatus(int status){
             return dal.GetByStatus(status);
         }
+        public double[] RevenueStatistics(DateTime start, DateTime end){
+            return dal.RevenueStatistics(start, end);
+        }
+        public bool UpdateStatus(Invoice invoice){
+            return dal.UpdateStatus(invoice);
+        }
     }
 }

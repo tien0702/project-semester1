@@ -69,6 +69,20 @@ namespace DALTest{
             List<Product> products = dal.GetByCategory(new Category(){CategoryName = category_name});
             Assert.True(products == null);
         }
-
+        
+        [Theory]
+        [InlineData(1)]
+        [InlineData(15)]
+        [InlineData(20)]
+        public void GetQuantity1(int product_id){
+            Assert.True(dal.GetQuantity(product_id) >= 0);
+        }
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        [InlineData(999999999)]
+        public void GetQuantity2(int product_id){
+            Assert.True(dal.GetQuantity(product_id) == -1);
+        }
     }
 }

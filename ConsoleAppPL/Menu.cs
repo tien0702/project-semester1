@@ -1,6 +1,5 @@
 using System;
 using Persistance;
-using BL;
 using System.Linq;
 using System.Globalization;
 using System.Collections.Generic;
@@ -24,8 +23,8 @@ namespace ConsoleAppPL
             data.ClearAt(page);
             data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
             if(content[0] == null){
-                Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
-                data.TextColor("There are no products in this listing!", ConsoleColor.DarkGray);
+                Console.SetCursorPosition((box.Left+box.Right)/2-8, (box.Bott+box.Top)/2);
+                data.TextColor("Danh sách trống!", ConsoleColor.DarkGray);
                 return;
             }
             int max_line = content.Length;
@@ -33,7 +32,6 @@ namespace ConsoleAppPL
                 data.WriteAt(string.Format(" " + content[i]), box.Left, box.Top+i+1);
             }
         }
-
         public void ShowNameMenu(string name){
             data.ClearAt(new Coordinates(){Left = 54, Right = 80, Top = 4, Bott = 4});
             data.WriteAt(name, 72-(name.Length/2), 4);
@@ -54,8 +52,8 @@ namespace ConsoleAppPL
             data.ClearAt(page);
             data.WriteAt(string.Format("≡ " + name_box), box.Left, box.Top);
             if(content == null || content[0] == null){
-                Console.SetCursorPosition((box.Left+box.Right)/2-20, (box.Bott+box.Top)/2);
-                data.TextColor("There are no products in this listing!", ConsoleColor.DarkGray);
+                Console.SetCursorPosition((box.Left+box.Right)/2-8, (box.Bott+box.Top)/2);
+                data.TextColor("Danh sách trống!", ConsoleColor.DarkGray);
                 return "0";
             }
             int max_line = content.Length;
@@ -64,13 +62,13 @@ namespace ConsoleAppPL
             }
             int temp;
             do{
-                choice = data.GetChoice("Your Choice", new string[]{"Escape"});
+                choice = data.GetChoice("Lựa chọn", new string[]{"Escape"});
                 if(keywords.Contains(choice)){
                     break;
                 }else{
                     int.TryParse(choice, out temp);
                     if(temp < 1 || temp > number_choice){
-                        InvalidSelection("You choice invalid!");
+                        InvalidSelection("Bạn chọn sai!");
                     }else{
                         return choice;
                     }
@@ -106,7 +104,8 @@ namespace ConsoleAppPL
                     total += tp.UnitPrice;
                 }
                 total = total * products[count].Quantity;
-                page.View[line++] = string.Format("{0, -2}. {1, -50}{2, 10}K", line, string.Format("{0} ({1}) x{2}", products[count].ProductName, Sizes[convert], products[count++].Quantity), (total)/1000);
+                page.View[line++] = string.Format("{0, -2}. {1, -50}{2, 10}", line, string.Format("{0} ({1}) x{2}", products[count].ProductName, Sizes[convert], products[count++].Quantity),
+                 string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total));
                 if(count == count_products){
                     pages.Add(page);
                 }
@@ -162,7 +161,7 @@ namespace ConsoleAppPL
                     }
                 ).Sum();
                 page.KeyIndex.Add(line+1, index++);
-                page.View[line++] = string.Format("{0, -2}. {1, -26} Price: {2, 10}", line, invoices[count].Date, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", invoices[count++].Total));
+                page.View[line++] = string.Format("{0, -2}. {1, -26} Giá: {2, 10}", line, invoices[count].Date, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", invoices[count++].Total));
                 if(count == count_invoice){
                     pages.Add(page);
                 }
@@ -217,11 +216,32 @@ namespace ConsoleAppPL
         /// <summary> <c></c> Hiển thị thông báo lỗi, tại Box Choice.</summary>
         public void InvalidSelection(string msg){
             Console.ForegroundColor = ConsoleColor.Red;
-            data.WriteAt(string.Format(msg + " Press any key to continue..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+            data.WriteAt(string.Format(msg + " Nhấn phím bất kỳ để tiếp tục..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
             Console.ResetColor();
             Console.ReadKey();
         }
 
+        public bool ConfirmSelection(string msg){
+            bool result = false;
+            string choose;
+            do
+            {
+                BoxTutorial(new string[] { "Enter: Xác nhận", "ESC  : Huỷ" });
+                choose = data.GetChoice(msg, new string[] { "Escape" });
+                switch(choose){
+                    case "Enter":
+                        result = true;
+                        break;
+                    case "Escape":
+                        result = false;
+                        break;
+                    default:
+                        InvalidSelection("Bạn chọn sai!");
+                        break;
+                }
+            } while (choose != "Enter" && choose != "Escape");
+            return result;
+        }
         public void BoxTutorial(string[] options){// Hiển thị hướng dẫn các nút điều hướng
             data.ClearAt(Box.BOX_TUTORIAL);
             Console.ForegroundColor = ConsoleColor.DarkYellow;
@@ -239,13 +259,13 @@ namespace ConsoleAppPL
         }
         public void CurrentBox(bool isRight){
             if(isRight){
-                Console.SetCursorPosition(Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
-                data.TextColor("<< Current", ConsoleColor.DarkYellow);
-                data.WriteAt(new string(' ', 10), Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
+                Console.SetCursorPosition(Box.BOX_RIGHT.Right-13, Box.BOX_RIGHT.Top);
+                data.TextColor("<< Đang Chọn", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 13), Box.BOX_LEFT.Right-13, Box.BOX_LEFT.Top);
             }else{
-                Console.SetCursorPosition(Box.BOX_LEFT.Right-10, Box.BOX_LEFT.Top);
-                data.TextColor("<< Current", ConsoleColor.DarkYellow);
-                data.WriteAt(new string(' ', 10), Box.BOX_RIGHT.Right-10, Box.BOX_RIGHT.Top);
+                Console.SetCursorPosition(Box.BOX_LEFT.Right-13, Box.BOX_LEFT.Top);
+                data.TextColor("<< Đang Chọn", ConsoleColor.DarkYellow);
+                data.WriteAt(new string(' ', 13), Box.BOX_RIGHT.Right-13, Box.BOX_RIGHT.Top);
             }
         }
         public void ShowNumberPage(int current_page, int max_page, bool isRight) // hiển thị (số trang hiện tại)/(số trang tối đa) của box phải nếu isRight = true
@@ -359,16 +379,16 @@ namespace ConsoleAppPL
             Console.WriteLine("│                          Hoá Đơn Thanh Toán                        │");
             Console.WriteLine("│                                                                    │");
             Console.WriteLine("│  Số Hoá Đơn: {0, -10}                                            │", invoice.InvoiceNo);
-            Console.WriteLine("│  Thu Ngân  : {0, -30}                        │", invoice.InvoiceCashier.FullName);
-            Console.WriteLine("│  Ngày      : {0, -15}       Giờ: {1, -15}            │", string.Format("{0: dd/MM/yyyy}", invoice.Date), string.Format("{0: HH:mm:ss}", invoice.Date));
+            Console.WriteLine("│  Thu Ngân  : {0, -30}                        │", (invoice.InvoiceCashier.CashierId == 1)?("Administrator"):(invoice.InvoiceCashier.FullName));
+            Console.WriteLine("│  Ngày      : {0, -15}             Giờ: {1, -15}      │", string.Format("{0: dd/MM/yyyy}", invoice.Date), string.Format("{0: HH:mm:ss}", invoice.Date));
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
-            Console.WriteLine("│    Tên Hàng                             SL     ĐG      T.Tiền      │");//42 48 55
+            Console.WriteLine("│    Tên Hàng                           SL       ĐG        T.Tiền    │");//42 48 55
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
             Console.WriteLine("│                                                                    │");
             InvoiceText(invoice.ListProduct);
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
-            Console.WriteLine("│    Tổng Cộng:                                          {0, -10}  │", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total));
-            Console.WriteLine("│  {0, -65} │", ToText(invoice.Total.ToString()));
+            Console.WriteLine("│    Tổng Cộng:                                      {0, 14}  │", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total));
+            Console.WriteLine("│  {0, -65} │", ToText(total.ToString()));
             Console.WriteLine("│                                                                    │");
             Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
             Console.WriteLine("│                      Xin Cảm Ơn - Hẹn Gặp Lại                      │");
@@ -382,12 +402,12 @@ namespace ConsoleAppPL
             foreach(var p in products){
                 int.TryParse(p.Size, out convert);
                 if(p.Size == "2") p.Price += 6000;
-                Console.WriteLine("│  {0, -39}{1, -3}{2, 9}{3, 9}      │", string.Format("{0} ({1})", p.ProductName, sizes[convert]), ((byte)p.Quantity)
+                Console.WriteLine("│  {0, -37}{1, -3}{2, 11}{3, 11}    │", string.Format("{0} ({1})", p.ProductName, sizes[convert]), ((byte)p.Quantity)
                 , string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", p.Price), string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", p.Price*p.Quantity));
                 foreach(var tp in p.ListTopping){
-                    Console.WriteLine("│   +{0, -47}{1, 11}      │", tp.ToppingName, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", tp.UnitPrice));
+                    Console.WriteLine("│   +{0, -35}{1, -3}{2, 11}{3, 11}    │", tp.ToppingName, "-"
+                                    , string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", tp.UnitPrice), string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", tp.UnitPrice * p.Quantity));
                 }
-                // Console.WriteLine("│ ────────────────────────────────────────────────────────────────── │");
                 Console.WriteLine("│ .................................................................. │");
             }
         }

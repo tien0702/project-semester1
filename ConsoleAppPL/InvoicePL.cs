@@ -13,7 +13,7 @@ namespace ConsoleAppPL
         private InvoiceBL bl = new InvoiceBL();
         public void MenuInvoice(Cashier cashier){
             string[] keyword = new string[]{"End", "LeftArrow", "RightArrow", "UpArrow", "DownArrow", "Escape"};
-            string[] tutorial = new string[]{"A: Search By ID", "B: Search By Name", "C: Search By Category", "ALL: Show All", "ESC: Cancel", "End: Payment"};
+            string[] tutorial = new string[]{"A: Tìm Theo ID", "B: Tìm Theo Tên", "C: Tìm Theo Loại", "ALL: Hiển Thị Tất Cả", "ESC: Trở Lại", "End: Thanh Toán"};
             Invoice invoice = new Invoice(){InvoiceCashier = cashier};
             Product product = new Product();
             ProductBL bL = new ProductBL();
@@ -40,10 +40,11 @@ namespace ConsoleAppPL
                         choice = "view";
                         break;
                     case "view":
-                        ShowNameMenu("Menu Invoice");
-                        ViewBox(pages[current_page_left - 1].View, "List Product", false);
-                        ViewBox(order[current_page_right - 1].View, "Order", true);
-                        Pricing(invoice);
+                        ShowNameMenu("Hoá Đơn");
+                        ViewBox(pages[current_page_left - 1].View, "Danh Sách Sản Phẩm", false);
+                        ViewBox(order[current_page_right - 1].View, "Danh sách các món đã thêm", true);
+                        Console.SetCursorPosition(Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Bott);
+                        data.TextColor(string.Format(" >| Tổng cộng: {0, 53}", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", Calculate(invoice))), ConsoleColor.Blue);
                         ShowNumberPage(current_page_left, max_page_left, false);
                         ShowNumberPage(current_page_right, max_page_right, true);
                         CurrentBox(isControlRight);
@@ -53,10 +54,10 @@ namespace ConsoleAppPL
                         }else{
                             key_index = pages[current_page_left-1].KeyIndex;
                         }
-                        choice = data.GetChoice("Your Choice", keyword);
+                        choice = data.GetChoice("Lựa Chọn", keyword);
                         break;
                     case "a":// search by id
-                        string search = data.GetChoice("Enter Product ID", new string[]{"Escape"});
+                        string search = data.GetChoice("Nhập ID sản phẩm", new string[]{"Escape"});
                         int id;
                         int.TryParse(search, out id);
                         ProductBL productBL = new ProductBL();
@@ -72,7 +73,7 @@ namespace ConsoleAppPL
                             }
                         }else
                         {
-                            InvalidSelection("Not Found!");
+                            InvalidSelection("Không tìm thấy!");
                             choice = "view";
                         }
                         break;
@@ -96,7 +97,7 @@ namespace ConsoleAppPL
                         break;
                     case "end": // -> create invoice
                         if(invoice.ListProduct.Count == 0){
-                            InvalidSelection("Order is empty!");
+                            InvalidSelection("Danh sách rỗng!");
                             choice = "view";  
                         }else
                         {
@@ -164,7 +165,7 @@ namespace ConsoleAppPL
                                 choice = "update";
                             }
                         }else{
-                            InvalidSelection("You choice invalid!");
+                            InvalidSelection("Bạn chọn sai!");
                             choice = "view";
                         }
                         break;
@@ -174,40 +175,34 @@ namespace ConsoleAppPL
                     if(invoice == null || invoice.ListProduct.Count == 0){
                         return;
                     }
-                    string esc = string.Empty;
-                    do
-                    {
-                        BoxTutorial(new string[] { "Enter: Yes", "ESC: No" });
-                        esc = data.GetChoice("Leaving will delete the current listing!", new string[] { "Escape" });
-                        if (esc == "Escape")
-                        {
-                            choice = "view";
-                        }
-                        else if (esc != "Enter" && esc != "Escape")
-                        {
-                            InvalidSelection("You choice invalid!");
-                        }
-                    } while(esc != "Enter" && esc != "Escape");
+                    if(!ConfirmSelection("Rời đi sẽ xoá hết danh sách món đã chọn, vẫn rời?")) choice = "view";
                 }
             }while(choice != "Escape");
         }
         public bool CreateInvoice(Invoice invoice){
             bool result = false;
-            string[] menu = new string[]{"1. Payment confirmation", "2. Waiting for progressing", "3. Back"};
-            Pricing(invoice);
+            string[] menu = new string[]{"1. Xác nhận thanh toán", "2. Chờ xử lý", "3. Trở lại"};
+            Console.SetCursorPosition(Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Bott);
+            data.TextColor(string.Format(" >| Tổng cộng: {0, 53}", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", Calculate(invoice))), ConsoleColor.Blue);
             data.ClearAt(Box.BOX_TUTORIAL);
             string choice = string.Empty;
-            double total = invoice.ListProduct.Select(
-                (p) => { 
-                    return (p.Price + p.ListTopping.Select((tp) => {return tp.UnitPrice;}).Sum()) * p.Quantity;
+            double price = 0;
+            double total = 0;
+            foreach(var p in invoice.ListProduct){
+                price = 0;
+                price = p.Price;
+                if(p.Size == "2") price += 6000;
+                foreach(var tp in p.ListTopping){
+                    price += tp.UnitPrice;
                 }
-            ).Sum();
+                total += price*p.Quantity;
+            }
             string[] order_information = new string[]{
-                string.Format("{0, -30} {1}", "Number of Cups: ", invoice.ListProduct.Select(p => {return p.Quantity;}).Sum()),
-                string.Format("{0, -30} {1}", "Total: ", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total))
+                string.Format("{0, -30} {1} cốc", "Số lượng cốc: ", invoice.ListProduct.Select(p => {return p.Quantity;}).Sum()),
+                string.Format("{0, -30} {1}", "Tổng cộng   : ", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", total))
             };
             invoice.Total = total;
-            ViewBox(order_information, "Order Information", true);
+            ViewBox(order_information, "Thông tin đơn", true);
             do{
                 choice = ViewBox(menu, menu.Length, new string[]{""}, "Menu", false);
                 switch(choice){
@@ -220,9 +215,7 @@ namespace ConsoleAppPL
                                 return true;
                             }else
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                data.WriteAt("Invoice creation failed! Press any key to return menu", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                                Console.ResetColor();
+                                InvalidSelection("Tạo hoá đơn thất bại!");
                             }
                         }catch(Exception ex){
                             InvalidSelection(ex.Message);
@@ -230,24 +223,32 @@ namespace ConsoleAppPL
                         break;
                     case "2":
                         invoice.Status = 2;
-                        InvoiceProgressing.Invoices.Add(invoice);
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        data.WriteAt("Successful! Press any key to return menu...", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
-                        Console.ResetColor();
-                        Console.ReadKey();
-                        invoice = new Invoice();
-                        return true;
+                        try{
+                            if(bl.CreateInvoice(invoice)){
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                data.WriteAt("Hoàn thành! Nhấn phím bất kỳ để tiếp tục...", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                                Console.ResetColor();
+                                Console.ReadKey();
+                                return true;
+                            }else
+                            {
+                                InvalidSelection("Tạo hoá đơn thất bại!");
+                            }
+                        }catch(Exception ex){
+                            InvalidSelection(ex.Message);
+                        }
+                        break;
                     case "3":
                         break;
                     default:
-                        InvalidSelection("You choice invalid!");
+                        InvalidSelection("Bạn chọn sai!");
                         break;
                 }
             }while(choice != "3");
             return result;
         }
         /// <summary> <c></c> Tính tổng giá của hoá đơn và hiển thị.</summary>
-        public void Pricing(Invoice invoice){
+        private double Calculate(Invoice invoice){
             double price = 0;
             double total = 0;
             foreach(var p in invoice.ListProduct){
@@ -259,8 +260,96 @@ namespace ConsoleAppPL
                 }
                 total += price*p.Quantity;
             }
-            Console.SetCursorPosition(Box.BOX_RIGHT.Left, Box.BOX_RIGHT.Bott);
-            data.TextColor(string.Format(" >| Price: {0, 53}K", (total)/1000), ConsoleColor.Blue);
+            return total;
+        }
+        public void RevenueStatistics(){
+            DateTime start = new DateTime();
+            DateTime end = new DateTime();
+            string[] options = new string[]{"1. Theo ngày", "2. Theo tháng", "3. Tuỳ chọn"};
+            double[] info = new double[2];
+            string[] str = new string[5];
+            string choice = string.Empty;
+            do{
+                BoxTutorial(new string[]{"ESC: Quay lại"});
+                choice = ViewBox(options, 3, new string[]{"Escape"}, "Menu", false);
+                switch(choice){
+                    case "1":
+                        start = GetDate(true);
+                        info = bl.RevenueStatistics(start, new DateTime(start.Year, start.Month, start.Day, 23, 59, 00));
+                        break;
+                    case "2":
+                        int month;
+                        while(true){
+                            try{
+                               month = int.Parse(data.GetChoice("Nhập tháng kiểm tra", new string[]{""}));
+                                if (month < 0 || month > DateTime.Now.Month){
+                                    InvalidSelection("Tháng không hợp lệ");
+                                }else{
+                                    break;
+                                }
+                            }catch{
+                                InvalidSelection("Ngày không hợp lệ");
+                            }
+                        }
+                        start = new DateTime(2021, month, 01, 00, 00, 00);
+                        end = new DateTime(2021, month, int.Parse(new DateTime().AddMonths(month).AddDays(-1).ToString("dd")), 23, 59, 00);
+                        info = bl.RevenueStatistics(start, end);
+                        break;
+                    case "3":
+                        start = GetDate(true);
+                        end = GetDate(false);
+                        info = bl.RevenueStatistics(start, end);
+                        break;
+                    case "Escape":
+                        break;
+                    default:
+                        InvalidSelection("Lựa chọn sai!");
+                        break;
+                }
+                if(choice == "1" || choice == "2" || choice == "3"){
+                    if (info != null)
+                    {
+                        str[0] = string.Format("Từ                  : {0}", start.ToString("MM/dd/yyyy"));
+                        str[1] = string.Format("Đến                 : {0}", (choice == "1") ? start.ToString("MM/dd/yyyy"):end.ToString("MM/dd/yyyy"));
+                        str[2] = "──────────────────────────────────────";
+                        str[3] = string.Format("Doanh thu           : {0}", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", info[0]));
+                        str[4] = string.Format("Tổng số cốc bán được: {0}", info[1]);
+                    }
+                    else
+                    {
+                        str[0] = "Không có thông tin!";
+                        str[1] = ""; str[2] = ""; str[3] = ""; str[4] = ""; 
+                    }
+                }
+                    
+                ViewBox(str, "Thông tin", true);
+            }while(choice != "Escape");
+        }
+        public DateTime GetDate(bool isStartDay){
+            DateTime dateTime;
+            string getDay;
+            int year;
+            int month;
+            int day;
+            while(true){
+                getDay = data.GetChoice(isStartDay?("Nhập ngày kiểm tra"):("Nhập ngày kết thúc"), new string[]{""});
+                try{
+                    day = int.Parse(getDay.Substring(0, 2));
+                    month = int.Parse(getDay.Substring(3, 2));
+                    year = int.Parse(getDay.Substring(6, 4));
+                    if(isStartDay){
+                        dateTime = new DateTime(year, month, day, 00, 00, 00);
+                        if(dateTime > DateTime.Now){
+                            throw new Exception();
+                        }
+                    }
+                    else dateTime = new DateTime(year, month, day, 23, 59, 00);
+                    break;
+                }catch{
+                    InvalidSelection("Ngày không hợp lệ");
+                }
+            }
+            return dateTime;
         }
     }
 }

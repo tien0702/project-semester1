@@ -31,7 +31,7 @@ namespace DAL
             return product;
         }
         public int GetQuantity(int product_id){
-            int result = 0;
+            int result = -1;
             try{
                 if(product_id <= 0){
                     throw new Exception("Can't Update");
@@ -46,33 +46,6 @@ namespace DAL
                 reader.Close();
             }catch(Exception ex){
                 Console.WriteLine(ex);
-            }finally{
-                connection.Close();
-            }
-            return result;
-        }
-        public bool UpdateQuantity(int product_id, int order_quantity){
-            bool result = false;
-            try{
-                if(product_id < 0 || order_quantity < 0){
-                    throw new Exception("Can't update");
-                }
-                connection.Open();
-                MySqlCommand cmd = connection.CreateCommand();
-                cmd.CommandText = @"select quantity from Product where product_id = '"+product_id+"';";
-                MySqlDataReader reader = cmd.ExecuteReader();
-                int quantity = 0;
-                if(reader.Read()){
-                    quantity = reader.GetInt32("quantity");
-                }
-                reader.Close();
-                if(quantity >= order_quantity){
-                    cmd.CommandText = @"update Product set quantity = quantity - "+order_quantity+" where product_id = '"+product_id+"';";
-                    cmd.ExecuteReader();
-                    result = true;
-                }
-            }catch(Exception ex){
-                Console.WriteLine(ex); Console.ReadLine();
             }finally{
                 connection.Close();
             }
@@ -184,6 +157,73 @@ namespace DAL
                 connection.Close();
             }
             return toppings;
+        }
+
+        public bool UpdateQuantity(Product product){
+            if(product == null || product.Quantity < 0){
+                throw new Exception("Không thể cập nhật!");
+            }
+            bool result = false;
+            try{
+                connection.Open();
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = "lock tables Product write;";
+                cmd.ExecuteNonQuery();
+                MySqlTransaction trans = connection.BeginTransaction();
+                cmd.Transaction = trans;
+                try{
+                    cmd.CommandText = "update Product set quantity = '"+product.Quantity+"' where product_id = '"+product.ProductId+"';";
+                    cmd.ExecuteNonQuery();
+                    trans.Commit();
+                    result = true;
+                }catch(Exception e){
+                    try{
+                        trans.Rollback();
+                    }catch{}
+                    throw new Exception(e.Message);
+                }finally{
+                    cmd.CommandText = "unlock tables;";
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex){
+                throw new Exception(ex.Message);
+            }finally{
+                connection.Close();
+            }
+            return result;
+        }
+        public bool UpdatePrice(Product product){
+            if(product == null || product.Price <= 0){
+                throw new Exception("Không thể cập nhật!");
+            }
+            bool result = false;
+            try{
+                connection.Open();
+                MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = "lock tables Cashier write;";
+                cmd.ExecuteNonQuery();
+                MySqlTransaction trans = connection.BeginTransaction();
+                cmd.Transaction = trans;
+                try{
+                    cmd.CommandText = "update Product set unit_price = '"+product.Price+"' where product_id = '"+product.ProductId+"';";
+                    cmd.ExecuteNonQuery();
+                    trans.Commit();
+                    result = true;
+                }catch(Exception e){
+                    try{
+                        trans.Rollback();
+                    }catch{}
+                    throw new Exception(e.Message);
+                }finally{
+                    cmd.CommandText = "unlock tables;";
+                    cmd.ExecuteNonQuery();
+                }
+            }catch(Exception ex){
+                throw new Exception(ex.Message);
+            }finally{
+                connection.Close();
+            }
+            return result;
         }
     }
 }

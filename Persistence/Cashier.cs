@@ -16,7 +16,7 @@ namespace Persistance
         public string Address{set; get;}
         public string FullName{
             get{
-                return string.Format("{0} {1} {2}", FirstName, MiddleName, LastName);
+                return string.Format("{0} {1} {2}", LastName, MiddleName, FirstName);
             }
         }
     }

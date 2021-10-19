@@ -9,7 +9,7 @@ namespace DALTest
     {
         private Cashier cashier = new Cashier();
         private CashierDAL dal = new CashierDAL();
-        
+        // ---------------------------------------------
         [Theory]
         [InlineData("Administrator", "AdiminPF13", 1)]
         [InlineData("Tientv", "TienPF13", 2)]
@@ -23,5 +23,24 @@ namespace DALTest
             int result = dal.Login(cashier).Role;
             Assert.True(result == expected);
         }
+        // ---------------------------------------------
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void GetByID1(int cashier_id){
+            Cashier cashier = dal.GetByID(cashier_id);
+            Assert.True(cashier != null);
+        }
+
+        [Theory]
+        [InlineData(-1)]
+        [InlineData(0)]
+        [InlineData(999999999)]
+        public void GetByID2(int cashier_id){
+            Cashier cashier = dal.GetByID(cashier_id);
+            Assert.True(cashier == null);
+        }
+        //------------------------------------------------
+        
     }
 }

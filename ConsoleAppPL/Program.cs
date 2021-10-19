@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Text.RegularExpressions;
 using Persistance;
 using BL;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ConsoleAppPL
 {
@@ -14,8 +11,7 @@ namespace ConsoleAppPL
         {
             Console.InputEncoding = System.Text.Encoding.Unicode;
             Console.OutputEncoding = System.Text.Encoding.Unicode;
-            // Cashier cashier = new Cashier(){CashierId = 2, UserName = "Tientv", Password = "TienPF13", Role = 2};
-            Cashier cashier = new Cashier();
+            Cashier cashier = new Cashier(){CashierId = 1, UserName = "Admin", Password = "AdminPF13", Role = 1};
             CashierPL cashierPL = new CashierPL();
             do{
                 cashier = Login();
@@ -24,7 +20,7 @@ namespace ConsoleAppPL
                     data.TextColor("GOODBYE", ConsoleColor.DarkCyan);
                     break;
                 }else if(cashier.Role == 1){
-                    Console.WriteLine("1");
+                    cashierPL.MenuAdmin(cashier);
                 }else if(cashier.Role == 2){
                     cashierPL.MenuCashier(cashier);
                 }
@@ -41,21 +37,21 @@ namespace ConsoleAppPL
             Console.WriteLine("█                                                              ─── ─────────── ───                                                            █");
             Console.ResetColor();
             Console.WriteLine("█▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█");
-            Console.WriteLine("█                           ~~~               -------                LOGIN                 -------                 ~~~                        █");
+            Console.WriteLine("█                           ~~~               -------              Đăng Nhập               -------                 ~~~                        █");
             Console.WriteLine("█═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════█");//(0 - 72, 5) - (72 -142, 5)
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                             ┌──────────────────────────────────────────────────┐                                            █");
-            Console.WriteLine("█                                             │ User Name:                                       │                                            █");
+            Console.WriteLine("█                                             │ Tên Đăng Nhập:                                   │                                            █");
             Console.WriteLine("█                                             └──────────────────────────────────────────────────┘                                            █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                             ┌──────────────────────────────────────────────────┐                                            █");
-            Console.WriteLine("█                                             │ Password:                                        │                                            █");
+            Console.WriteLine("█                                             │ Mật Khẩu:                                        │                                            █");
             Console.WriteLine("█                                             └──────────────────────────────────────────────────┘                                            █");
             Console.WriteLine("█                                                                                                                                             █");
             Console.WriteLine("█                                                                                                                                             █");
@@ -85,10 +81,10 @@ namespace ConsoleAppPL
                 if(step == 0){
                 role = bl.Login(cashier).Role;
                     if(role <= 0){
-                        Console.SetCursorPosition(40, 8);
-                            data.TextColor("▲! Incorrect username or password! Please press any key to continue....", ConsoleColor.Red);
+                        Console.SetCursorPosition(30, 8);
+                            data.TextColor("▲! Tên tài khoản hoặc mật khẩu không chính xác, nhấn phím bất kỳ để tiếp tục....", ConsoleColor.Red);
                             Console.ReadKey();
-                            data.ClearAt(new Coordinates() { Left = 40, Right = 130, Top = 8, Bott = 8 });
+                            data.ClearAt(new Coordinates() { Left = 30, Right = 130, Top = 8, Bott = 8 });
                             step = 1;
                         }
                         else
@@ -118,7 +114,7 @@ namespace ConsoleAppPL
                 {
                     Console.Write("\b \b");
                     pass = pass[0..^1];
-                }
+                }else if(Console.CursorLeft == 95){}
                 else if (!char.IsControl(keyInfo.KeyChar))
                 {
                     Console.Write("*");
@@ -131,8 +127,8 @@ namespace ConsoleAppPL
         static string GetUserName(){
             string user_name = string.Empty;
             ConsoleKey key;
-            data.ClearAt(new Coordinates(){Left = 58, Right = 96, Top = 11, Bott = 11});
-            Console.SetCursorPosition(59, 11);
+            data.ClearAt(new Coordinates(){Left = 63, Right = 96, Top = 11, Bott = 11});
+            Console.SetCursorPosition(63, 11);
             do{
                 var keyInfo = Console.ReadKey(intercept: true);
                 key = keyInfo.Key;
@@ -144,7 +140,8 @@ namespace ConsoleAppPL
                 {
                     Console.Write("\b \b");
                     user_name = user_name[0..^1];
-                }else if (!char.IsControl(keyInfo.KeyChar))
+                }else if(Console.CursorLeft == 95){}
+                else if (!char.IsControl(keyInfo.KeyChar))
                 {
                     Console.Write(keyInfo.KeyChar);
                     user_name += keyInfo.KeyChar;

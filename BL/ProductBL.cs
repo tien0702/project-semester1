@@ -19,11 +19,14 @@ namespace BL
         public List<Topping> GetToppings(){
             return dal.GetToppings();
         }
-        public bool UpdateQuantity(int product_id, int order_quantity){
-            return dal.UpdateQuantity(product_id, order_quantity);
-        }
         public int GetQuantity(int product_id){
             return dal.GetQuantity(product_id);
+        }
+        public bool UpdateQuantity(Product product){
+            return dal.UpdateQuantity(product);
+        }
+        public bool UpdatePrice(Product product){
+            return dal.UpdatePrice(product);
         }
     }
 }

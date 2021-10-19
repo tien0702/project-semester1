@@ -12,8 +12,8 @@ create table Cashier(
     firstName varchar(25),
     midlleName varchar(25),
     lastName varchar(25),
-    phone varchar(11) unique,
-    email varchar(50) unique,
+    phone varchar(11),
+    email varchar(50),
     address varchar(150)
 );
 insert into Cashier(userName, password, role, firstName, midlleName, lastName, phone, email, address) values
@@ -170,7 +170,8 @@ create table InvoiceDetailTopping(
     foreign key(topping_id) references Topping(topping_id)
 );
 
-select *from Invoice;
+update Cashier set userName = 'abcc', password = '123456' WHERE cashierId = 10;
+select *from Cashier;
 select *from InvoiceDetail;
 select *from InvoiceDetailTopping;
 
@@ -185,3 +186,4 @@ insert into InvoiceDetailTopping(invoice_no, product_id, topping_id) values
                 (1001, 12, 1),
                 (1001, 3, 4),
                 (1001, 2, 9);
+

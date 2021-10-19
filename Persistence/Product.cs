@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace Persistance
 {
@@ -16,7 +17,7 @@ namespace Persistance
         public string Ice{set; get;}
         public string ProductInfo{
             get{
-                return string.Format("{0, -55}+{2,-2}K", ProductName, Quantity, (Price)/1000);
+                return string.Format("{0, -53}{2, 2}", ProductName, Quantity, string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", Price));
             }
         }
         public Product()
