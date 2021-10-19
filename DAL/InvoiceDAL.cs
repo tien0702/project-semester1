@@ -87,7 +87,7 @@ namespace DAL
         public double[] RevenueStatistics(DateTime start, DateTime end){
             double[] result = new double[2];
             string query = @"select sum(amount) as sum_amount from invoice, invoicedetail
-                                where date between '"+start.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and '"+end.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and invoice.invoice_no = invoicedetail.invoice_no;";
+                                where date between '"+start.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and '"+end.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and invoice.invoice_no = invoicedetail.invoice_no and status = 1;";
             try{
                 connection.Open();
                 MySqlCommand cmd = connection.CreateCommand();
@@ -101,7 +101,7 @@ namespace DAL
                 }
                 reader.Close();
                 cmd.CommandText = @"select sum(invoice.total_due) as total_due from invoice
-                                    where date between '"+start.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and '"+end.ToString("yyyy-MM-dd HH:mm:ss.fff")+"';";
+                                    where date between '"+start.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and '"+end.ToString("yyyy-MM-dd HH:mm:ss.fff")+"' and status = 1;";
                 reader = cmd.ExecuteReader();
                 if(reader.Read()){
                     try{

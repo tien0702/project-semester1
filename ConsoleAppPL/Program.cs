@@ -9,22 +9,36 @@ namespace ConsoleAppPL
         public static InputAndOutputData data = new InputAndOutputData();
         static void Main(string[] args)
         {
-            Console.InputEncoding = System.Text.Encoding.Unicode;
-            Console.OutputEncoding = System.Text.Encoding.Unicode;
-            Cashier cashier = new Cashier(){CashierId = 1, UserName = "Admin", Password = "AdminPF13", Role = 1};
-            CashierPL cashierPL = new CashierPL();
-            do{
-                cashier = Login();
-                if(cashier.UserName == "Escape"){
-                    Console.Clear();
-                    data.TextColor("GOODBYE", ConsoleColor.DarkCyan);
-                    break;
-                }else if(cashier.Role == 1){
-                    cashierPL.MenuAdmin(cashier);
-                }else if(cashier.Role == 2){
-                    cashierPL.MenuCashier(cashier);
-                }
-            }while(true);
+            try{
+                Console.InputEncoding = System.Text.Encoding.Unicode;
+                Console.OutputEncoding = System.Text.Encoding.Unicode;
+                Cashier cashier = new Cashier() { };
+                CashierPL cashierPL = new CashierPL();
+                do
+                {
+                    cashier = Login();
+                    if (cashier.UserName == "Escape")
+                    {
+                        Console.Clear();
+                        data.TextColor("GOODBYE", ConsoleColor.DarkCyan);
+                        break;
+                    }
+                    else if (cashier.Role == 1)
+                    {
+                        cashierPL.MenuAdmin(cashier);
+                    }
+                    else if (cashier.Role == 2)
+                    {
+                        cashierPL.MenuCashier(cashier);
+                    }
+                } while (true);
+            }catch{
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Đã có lỗi xảy ra!");
+                Console.ResetColor();
+                Console.ReadKey();
+            }
         }
         static Cashier Login(){
             Cashier cashier = new Cashier();
