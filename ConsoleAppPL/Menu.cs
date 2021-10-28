@@ -215,8 +215,10 @@ namespace ConsoleAppPL
         }
         /// <summary> <c></c> Hiển thị thông báo lỗi, tại Box Choice.</summary>
         public void InvalidSelection(string msg){
+            if(msg.Length > Box.BOX_CHOICE.Right-1)
             Console.ForegroundColor = ConsoleColor.Red;
-            data.WriteAt(string.Format(msg + " Nhấn phím bất kỳ để tiếp tục..."), Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+            data.WriteAt(msg, Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott-1);
+            data.WriteAt("Nhấn phím bất kỳ để tiếp tục...", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
             Console.ResetColor();
             Console.ReadKey();
         }

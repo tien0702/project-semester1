@@ -274,7 +274,7 @@ namespace ConsoleAppPL
             do{
                 details = new string[]{string.Format("Tên sản phẩm: {0}", product.ProductName)
                                         , string.Format("Số lượng    : {0}", bl.GetQuantity((int)product.ProductId))
-                                        , string.Format("Giá         : {0}", product.Price)};
+                                        , string.Format("Giá         : {0}", string.Format(new CultureInfo("vi-VN"), "{0:#,##0}đ", product.Price))};
                 ViewBox(details, "Thông tin sản phẩm", true);
                 BoxTutorial(tutorial);
                 choice = ViewBox(options, 2, keyword, "Menu", false);
@@ -283,7 +283,9 @@ namespace ConsoleAppPL
                         quantity = UpdateQuantity();
                         if(bl.UpdateQuantity(new Product(){ProductId = product.ProductId, Quantity = quantity})){
                             product.Quantity = quantity;
+                            Console.ForegroundColor = ConsoleColor.Green;
                             data.WriteAt("Hoàn thành! Nhấn phím bất kỳ để tiếp tục", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                            Console.ResetColor();
                             Console.ReadKey();
                         }
                         else
@@ -295,7 +297,9 @@ namespace ConsoleAppPL
                         price = UpdatePrice();
                         if(bl.UpdatePrice(new Product(){ProductId = product.ProductId, Price = price})){
                             product.Price = price;
+                            Console.ForegroundColor = ConsoleColor.Red;
                             data.WriteAt("Hoàn thành! Nhấn phím bất kỳ để tiếp tục", Box.BOX_CHOICE.Left, Box.BOX_CHOICE.Bott);
+                            Console.ResetColor();
                             Console.ReadKey();
                         }else
                         {

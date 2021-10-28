@@ -1,10 +1,8 @@
-using System;
+
 using Xunit;
 using Persistance;
 using System.Collections.Generic;
 using DAL;
-using System.Threading.Tasks;
-using System.Collections;
 
 namespace DALTest
 {
@@ -40,10 +38,5 @@ namespace DALTest
             List<Invoice> invoices = dal.GetByStatus(status);
             Assert.True(invoices == null);
         }
-        // [Fact]
-        // public void test(){
-        //     var invoice = new Invoice(){InvoiceCashier = new Cashier(){CashierId = 1}};
-        //     Assert.ThrowsAny<InvalidOperationException>(() => dal.CreateInvoice(invoice));
-        // }
     }
 }

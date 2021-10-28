@@ -281,7 +281,7 @@ namespace ConsoleAppPL
                         int month;
                         while(true){
                             try{
-                               month = int.Parse(data.GetChoice("Nhập tháng kiểm tra", new string[]{""}));
+                                month = int.Parse(data.GetChoice("Nhập tháng kiểm tra", new string[]{""}));
                                 if (month < 0 || month > DateTime.Now.Month){
                                     InvalidSelection("Tháng không hợp lệ");
                                 }else{
@@ -337,13 +337,11 @@ namespace ConsoleAppPL
                     day = int.Parse(getDay.Substring(0, 2));
                     month = int.Parse(getDay.Substring(3, 2));
                     year = int.Parse(getDay.Substring(6, 4));
-                    if(isStartDay){
-                        dateTime = new DateTime(year, month, day, 00, 00, 00);
-                        if(dateTime > DateTime.Now){
-                            throw new Exception();
-                        }
-                    }
+                    if(isStartDay) dateTime = new DateTime(year, month, day, 00, 00, 00);
                     else dateTime = new DateTime(year, month, day, 23, 59, 00);
+                    if(dateTime > DateTime.Now){
+                        throw new Exception();
+                    }
                     break;
                 }catch{
                     InvalidSelection("Ngày không hợp lệ");
